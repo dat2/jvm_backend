@@ -1,4 +1,4 @@
-package com.dujay.generator.model;
+package com.dujay.generator.codegen;
 
 import java.io.File;
 import java.io.IOException;

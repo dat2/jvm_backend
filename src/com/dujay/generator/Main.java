@@ -2,8 +2,8 @@ package com.dujay.generator;
 
 import java.io.IOException;
 
-import com.dujay.generator.model.IClassFileGenerator;
-import com.dujay.generator.model.SimpleClassFileGenerator;
+import com.dujay.generator.codegen.IClassFileGenerator;
+import com.dujay.generator.codegen.SimpleClassFileGenerator;
 
 public class Main {
 
