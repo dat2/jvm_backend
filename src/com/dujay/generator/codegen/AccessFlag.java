@@ -9,8 +9,8 @@ public enum AccessFlag {
   ACC_SYNTHETIC(0x1000),
   ACC_ANNOTATION(0x2000),
   ACC_ENUM(0x4000),
-  
-  //methods only
+
+  // methods only
   ACC_PRIVATE(0x0002),
   ACC_PROTECTED(0x0004),
   ACC_STATIC(0x0008),
@@ -19,19 +19,20 @@ public enum AccessFlag {
   ACC_VARARGS(0x0080),
   ACC_NATIVE(0x0100),
   ACC_STRICT(0x0800);
-  
+
   private int flag;
+
   AccessFlag(int flag) {
     this.flag = flag;
   }
-  
+
   public int getFlag() {
     return flag;
   }
-  
+
   public static int mask(AccessFlag... flags) {
     int r = 0;
-    for(AccessFlag flag : flags) {
+    for (AccessFlag flag : flags) {
       r |= flag.getFlag();
     }
     return r;

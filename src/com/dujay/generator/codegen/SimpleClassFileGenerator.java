@@ -19,17 +19,17 @@ public class SimpleClassFileGenerator implements IClassFileGenerator {
   }
 
   public void writeToFile() throws IOException {
-    if(file == null) {
+    if (file == null) {
       return;
     }
-    
+
     bytes.writeTo(new FileOutputStream(file));
   }
 
   @Override
   public void writeBytes(int opcode, byte... args) {
     bytes.write(opcode);
-    
+
     try {
       bytes.write(args);
     } catch (IOException e) {
@@ -39,7 +39,7 @@ public class SimpleClassFileGenerator implements IClassFileGenerator {
 
   @Override
   public void writeBytes(int[] opcodes, byte... args) {
-    for(int i : opcodes) {
+    for (int i : opcodes) {
       bytes.write(i);
     }
 
