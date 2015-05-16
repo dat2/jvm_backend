@@ -1,18 +1,17 @@
 package com.dujay.generator.codegen;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class SimpleClassFileGenerator implements IClassFileGenerator {
 
-  private ArrayList<Byte> bytes;
+  private ByteArrayOutputStream bytes;
   private File file = null;
 
   public SimpleClassFileGenerator() {
-    bytes = new ArrayList<Byte>();
+    bytes = new ByteArrayOutputStream();
   }
 
   public void setFilename(String filename) {
@@ -24,24 +23,30 @@ public class SimpleClassFileGenerator implements IClassFileGenerator {
       return;
     }
     
-    List<String> hexBytes =
-        bytes.stream()
-          .map(x -> String.format("%01x", x))
-          .collect(Collectors.toList());
-    System.out.println(hexBytes);
-    
-    // TODO write to file
+    bytes.writeTo(new FileOutputStream(file));
   }
 
-
-  public void assembly(short opcode, byte... args) {
-    bytes.add((byte)(opcode >> 8));
-    if((byte)opcode != 0) {
-      bytes.add((byte)opcode);
-    }
+  @Override
+  public void writeBytes(int opcode, byte... args) {
+    bytes.write(opcode);
     
-    for( byte b : args ) {
-      bytes.add(b);
+    try {
+      bytes.write(args);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
+  @Override
+  public void writeBytes(int[] opcodes, byte... args) {
+    for(int i : opcodes) {
+      bytes.write(i);
+    }
+
+    try {
+      bytes.write(args);
+    } catch (IOException e) {
+      e.printStackTrace();
     }
   }
 }
