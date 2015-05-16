@@ -23,7 +23,7 @@ public class Tester {
 
     // the hello class
     generator.constClass(2);
-    generator.constUtf8("Hello");
+    generator.constUtf8("J");
 
     // the object class
     generator.constClass(4);
@@ -40,7 +40,7 @@ public class Tester {
     generator.constUtf8("this");
 
     // public static void main(string[] args);
-    generator.constUtf8("LHello;");
+    generator.constUtf8("LJ;");
     generator.constUtf8("main");
     generator.constUtf8("([Ljava/lang/String;)V");
     generator.constUtf8("args");
@@ -51,7 +51,7 @@ public class Tester {
     generator.constUtf8("I");
 
     generator.constUtf8("SourceFile");
-    generator.constUtf8("Hello.java");
+    generator.constUtf8("J.java");
 
     // access flags
     generator.accessFlags(AccessFlag.ACC_SUPER, AccessFlag.ACC_PUBLIC);
@@ -136,18 +136,45 @@ public class Tester {
     generator.istore_1();
     generator.vreturn();
 
+    generator.u2(0); // exceptions
+    
+    generator.u2(2); // 2 attributes
+    
+    // line number table
+    generator.u2(10);
+    generator.u4(10);
+    generator.u2(2);
+    
     generator.u2(0);
-
-    // codes
-    // generator.u2(10); // LineNumberTable
-    // generator.u4(6);
-    // generator.u2(1);
-    // generator.u2(0);
-    // generator.u2(3);
-
+    generator.u2(4);
+    
+    generator.u2(2);
+    generator.u2(5);
+    
+    // local variable table
+    generator.u2(11);
+    generator.u4(22);
+    
+    generator.u2(2);
+    
+    generator.u2(0);
+    generator.u2(3);
+    generator.u2(16);
+    generator.u2(17);
+    generator.u2(0);
+    
+    generator.u2(2);
+    generator.u2(1);
+    generator.u2(18);
+    generator.u2(19);
+    generator.u2(1);
+    
     // a_count
     // attributes[a_count]
-    generator.u2(0);
+    generator.u2(1);
+    generator.u2(20);
+    generator.u4(2);
+    generator.u2(21);
 
     // write file out
     generator.writeToFile();
