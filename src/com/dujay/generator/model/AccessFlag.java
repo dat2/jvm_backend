@@ -1,4 +1,4 @@
-package com.dujay.generator.codegen;
+package com.dujay.generator.model;
 
 public enum AccessFlag {
   ACC_PUBLIC(0x0001),

@@ -2,182 +2,107 @@ package com.dujay.generator;
 
 import java.io.IOException;
 
-import com.dujay.generator.codegen.AccessFlag;
-import com.dujay.generator.codegen.IClassFileGenerator;
-import com.dujay.generator.codegen.SimpleClassFileGenerator;
+import com.dujay.generator.model.AccessFlag;
+import com.dujay.generator.model.ClassFile;
+import com.dujay.generator.model.constants.ConstantPool;
+import com.dujay.generator.model.methods.Method;
+import com.dujay.generator.model.methods.MethodPool;
+import com.dujay.generator.writers.ByteCodeWriter;
 
 public class Tester {
+  
+  private static ConstantPool createSimpleConstantPool() throws Exception {
+    ConstantPool pool = new ConstantPool();
 
-  public static void main(String[] args) throws IOException {
-    IClassFileGenerator generator = new SimpleClassFileGenerator();
-    generator.setFilename("J.class");
-
-    // headers
-    generator.magicNumber();
-    generator.java8version();
-
-    // c_count (21 entries)
-    generator.u2(22);
-
-    // constant_pool[c_count]
-
-    // the hello class
-    generator.constClass(2);
-    generator.constUtf8("J");
-
-    // the object class
-    generator.constClass(4);
-    generator.constUtf8("java/lang/Object");
-    generator.constUtf8("<init>");
-    generator.constUtf8("()V");
-    generator.constUtf8("Code");
-    generator.constMethodRef(3, 9);
-    generator.constNameAndType(5, 6);
-
-    generator.constUtf8("LineNumberTable");
-    generator.constUtf8("LocalVariableTable");
-
-    generator.constUtf8("this");
-
-    // public static void main(string[] args);
-    generator.constUtf8("LJ;");
-    generator.constUtf8("main");
-    generator.constUtf8("([Ljava/lang/String;)V");
-    generator.constUtf8("args");
-    generator.constUtf8("[Ljava/lang/String;");
-
-    // int x
-    generator.constUtf8("x");
-    generator.constUtf8("I");
-
-    generator.constUtf8("SourceFile");
-    generator.constUtf8("J.java");
-
-    // access flags
-    generator.accessFlags(AccessFlag.ACC_SUPER, AccessFlag.ACC_PUBLIC);
-
-    // 0 indexed now
-    // this class
-    // super class
-    generator.thisClass(1);
-    generator.superClass(3);
-
-    // i_count
-    // interfaces[i_count]
-    generator.u2(0);
-
-    // f_count
-    // fields[f_count]
-    generator.u2(0);
-
-    // m_count
-    // methods[m_count]
-    generator.u2(2); // main, and constructor
-
-    // constructor
-    generator.accessFlags(AccessFlag.ACC_PUBLIC);
-    generator.u2(5); // <init>
-    generator.u2(6); // V()
-    generator.u2(1); // 1 attr, code
-
-    // Code attribute
-    generator.u2(7); // Code
-    generator.u4(47); // length of this attribute
-    generator.u2(1); // max_stack
-    generator.u2(1); // max_locals
-
-    generator.u4(5); // code_length
-
-    // code
-    generator.aload_0();
-    generator.invokespecial(new byte[] { 0, 8 }); // the 9th object in the
-                                                  // constant pool
-    generator.vreturn();
-
-    // exceptions
-    generator.u2(0);
-
-    // code attribute, attributes
-    // generator.u2(0);
-    generator.u2(2);
-
-    // line number table
-    generator.u2(10); // LineNumberTable
-    generator.u4(6);
-    generator.u2(1);
-    generator.u2(0);
-    generator.u2(3);
-
-    // local variable table
-    generator.u2(11); // LocalVariableTable
-    generator.u4(12);
-    generator.u2(1);
-    generator.u2(0);
-    generator.u2(5);
-    generator.u2(12);
-    generator.u2(13);
-    generator.u2(0);
-
-    // MAIN
-    generator.accessFlags(AccessFlag.ACC_PUBLIC, AccessFlag.ACC_STATIC);
-    generator.u2(14); // main
-    generator.u2(15); // ([Ljava/lang/String;)V
-    generator.u2(1); // 1 attribute, code
-
-    // MAIN code attribute
-    generator.u2(7); // Code
-    generator.u4(59); // attribute length
-    generator.u2(1); // max_stack
-    generator.u2(2); // max_locals (x, String[] args)
-
-    // code
-    generator.u4(3);
-    generator.iconst_0();
-    generator.istore_1();
-    generator.vreturn();
-
-    generator.u2(0); // exceptions
+    // classes
+    pool.addClass("blah");
+    pool.addClass("java/lang/Object");
+    pool.addClass("java/lang/System");
+    pool.addClass("java/io/PrintStream");
     
-    generator.u2(2); // 2 attributes
+    // methods 
+    pool.addMethod("<init>","()V");
+    pool.addMethod("main", "([Ljava/lang/String;)V");
+    pool.addMethod("println", "(Ljava/lang/String;)V");
     
-    // line number table
-    generator.u2(10);
-    generator.u4(10);
-    generator.u2(2);
+    // variables
+    pool.addVariable("out", "Ljava/io/PrintStream;");
     
-    generator.u2(0);
-    generator.u2(4);
+    // name / types
+    pool.addNameAndType("<init>", "()V");
+    pool.addNameAndType("out", "Ljava/io/PrintStream;");
+    pool.addNameAndType("println", "(Ljava/lang/String;)V");
     
-    generator.u2(2);
-    generator.u2(5);
+    // method refs
+    pool.addMethodRef("java/lang/Object", "<init>", "()V");
+    pool.addMethodRef("java/io/PrintStream", "println", "(Ljava/lang/String;)V");
     
-    // local variable table
-    generator.u2(11);
-    generator.u4(22);
+    // field refs
+    pool.addFieldRef("java/lang/System", "out", "Ljava/io/PrintStream;");
     
-    generator.u2(2);
-    
-    generator.u2(0);
-    generator.u2(3);
-    generator.u2(16);
-    generator.u2(17);
-    generator.u2(0);
-    
-    generator.u2(2);
-    generator.u2(1);
-    generator.u2(18);
-    generator.u2(19);
-    generator.u2(1);
-    
-    // a_count
-    // attributes[a_count]
-    generator.u2(1);
-    generator.u2(20);
-    generator.u4(2);
-    generator.u2(21);
+    // constant values
+    pool.addString("Hello World");
 
-    // write file out
-    generator.writeToFile();
+    // attribute names
+    pool.addUtf8("Code");
+    pool.addUtf8("LineNumberTable");
+//    pool.addUtf8("LocalVariableTable");
+
+    pool.addSource("blah.jvm");
+    
+    return pool;
+  }
+
+  private static MethodPool createSimpleMethodPool(ConstantPool constants) throws IOException {
+    MethodPool pool = new MethodPool();
+    
+    // Hello() 
+    Method constructor = new Method("<init>", 1, 1, AccessFlag.ACC_PUBLIC);
+    ByteCodeWriter w = constructor.getByteCodeWriter();
+    
+    w.aload_0();
+    w.invokespecial(constants.getMemberRefIndex("java/lang/Object", "<init>"));
+    w.vreturn();
+    
+    pool.addMethod(constructor);
+    
+    // main(String[] args)
+    Method main = new Method("main", 2, 1, AccessFlag.ACC_PUBLIC, AccessFlag.ACC_STATIC);
+    w = main.getByteCodeWriter();
+    
+    w.getstatic(constants.getMemberRefIndex("java/lang/System", "out"));
+    w.ldc(constants.getStringIndex("Hello World"));
+    w.invokevirtual(constants.getMemberRefIndex("java/io/PrintStream", "println"));
+    w.vreturn();
+    
+    pool.addMethod(main);
+    
+    pool.prepareStream(constants);
+    
+    return pool;
+  }
+
+  public static void main(String[] args) throws Exception {
+    ConstantPool constants = Tester.createSimpleConstantPool();
+    MethodPool methods = Tester.createSimpleMethodPool(constants);
+    
+    ClassFile classFile = new ClassFile("blah.class");
+
+    classFile.writeMagicNumber();
+    classFile.writeVersion(ClassFile.JAVA8_MAJOR, ClassFile.JAVA8_MINOR);
+    
+    classFile.writeConstantPool(constants);
+    classFile.writeAccessFlags(AccessFlag.ACC_SUPER, AccessFlag.ACC_PUBLIC);
+    
+    classFile.writeThisClass(constants.getClassIndex("blah"));
+    classFile.writeSuperClass(constants.getClassIndex("java/lang/Object"));
+    
+    classFile.writeInterfaces();
+    classFile.writeFields();
+    classFile.writeMethods(methods);
+    classFile.writeAttributes(constants);
+    
+    classFile.saveToFile();
   }
 
 }
