@@ -33,6 +33,7 @@ public class Method implements WriteableByteStream {
   public void prepareStream(ConstantPool constants) throws IOException {
     ByteStreamWriter writer = getStreamWriter();
     writer.u2(access);
+    
     int methodIndex = constants.getMethodIndex(name);
     writer.u2(methodIndex);
     writer.u2(methodIndex + 1);

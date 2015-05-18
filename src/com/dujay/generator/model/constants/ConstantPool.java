@@ -39,12 +39,12 @@ public class ConstantPool implements WriteableByteStream {
   private ByteArrayOutputStream stream;
   private ByteStreamWriter writer;
   
-  private Map<String, Integer> classIndices;
+  private Map<ClassDescriptor, Integer> classIndices;
+  private Map<MemberDescriptor, Integer> memberRefIndices;
+  private Map<Descriptor, Integer> variableIndices;
+  private Map<Descriptor, Integer> nameAndTypeIndices;
   private Map<String, Integer> methodIndices;
-  private Map<String, Integer> memberRefIndices;
   private Map<String, Integer> utf8Indices;
-  private Map<String, Integer> variableIndices;
-  private Map<NameAndType, Integer> nameAndTypeIndices;
   private Map<String, Integer> stringIndices;
   
   private int currentIndex;
@@ -54,12 +54,14 @@ public class ConstantPool implements WriteableByteStream {
     writer = new ByteStreamWriter(stream);
     
     currentIndex = 0;
-    classIndices = new HashMap<String, Integer>();
+    
+    classIndices = new HashMap<ClassDescriptor, Integer>();
+    memberRefIndices = new HashMap<MemberDescriptor, Integer>();
+    variableIndices = new HashMap<Descriptor, Integer>();
+    nameAndTypeIndices = new HashMap<Descriptor, Integer>();
+    
     methodIndices = new HashMap<String, Integer>();
-    memberRefIndices = new HashMap<String, Integer>();
     utf8Indices = new HashMap<String, Integer>();
-    variableIndices = new HashMap<String, Integer>();
-    nameAndTypeIndices = new HashMap<NameAndType, Integer>();
     stringIndices = new HashMap<String, Integer>();
   }
   
@@ -74,28 +76,28 @@ public class ConstantPool implements WriteableByteStream {
     return -1;
   }
   
-  public int getClassIndex(String className) {
-    return getIndex(classIndices, className);
-  }
-  
-  public int getMethodIndex(String methodName) {
-    return getIndex(methodIndices, methodName);
+  public int getClassIndex(ClassDescriptor classDescriptor) {
+    return getIndex(classIndices, classDescriptor);
   }
 
-  public int getMemberRefIndex(String className, String memberName) {
-    return getIndex(memberRefIndices, className + ":" + memberName);
+  public int getMemberRefIndex(MemberDescriptor descriptor) {
+    return getIndex(memberRefIndices, descriptor);
   }
   
   public int getUtf8Index(String utf) {
     return getIndex(utf8Indices, utf);
   }
 
-  public int getVariableIndex(String name) {
-    return getIndex(variableIndices, name);
+  public int getVariableIndex(Descriptor descriptor) {
+    return getIndex(variableIndices, descriptor);
   }
   
-  public int getNameAndTypeIndex(String name, String type) {
-    return getIndex(nameAndTypeIndices, new NameAndType(name, type));  
+  public int getNameAndTypeIndex(Descriptor descriptor) {
+    return getIndex(nameAndTypeIndices, descriptor);  
+  }
+  
+  public int getMethodIndex(String name) {
+    return getIndex(methodIndices, name);
   }
   
   public int getStringIndex(String string) {
@@ -110,19 +112,20 @@ public class ConstantPool implements WriteableByteStream {
     return getSourceAttributeIndex() + 1;
   }
 
-  public void addClass(String className) {
+  public void addClass(ClassDescriptor descriptor) {
     writer.u1(ConstantType.Class.tag());
     writer.u2(++currentIndex + 1); // needs to be 1 indexed
-    classIndices.put(className, currentIndex);
+    classIndices.put(descriptor, currentIndex);
     
-    this.addUtf8(className);
+    this.addUtf8(descriptor.getClassString());
   }
   
-  public void addMethod(String methodName, String methodDescriptor) {
+  public void addMethod(MethodDescriptor descriptor) {
+    String methodName = descriptor.getName();
     this.addUtf8(methodName);
     methodIndices.put(methodName, currentIndex);
     
-    this.addUtf8(methodDescriptor);
+    this.addUtf8(descriptor.getTypeString());
   }
 
   public void addString(String s) {
@@ -134,13 +137,16 @@ public class ConstantPool implements WriteableByteStream {
     this.addUtf8(s);
   }
 
-  private void addMemberRef(int memberType, String className, String name, String type) throws Exception {
-    int classIdx = this.getClassIndex(className);
+  private void addMemberRef(int memberType, MemberDescriptor descriptor) throws Exception {
+    ClassDescriptor ownerClass = descriptor.getOwnerClass();
+    
+    int classIdx = this.getClassIndex(ownerClass);
     if(classIdx == -1) {
-      throw new Exception("Class " + className + " not found!");
+      throw new Exception("Class " + ownerClass.getName() + " not found!");
     }
     
-    int nameTypeIdx = this.getNameAndTypeIndex(name, type);
+    String name = descriptor.getName();
+    int nameTypeIdx = this.getNameAndTypeIndex(descriptor);
     if(nameTypeIdx == -1) {
       throw new Exception("Name " + name + " not found!");
     }
@@ -150,19 +156,19 @@ public class ConstantPool implements WriteableByteStream {
     writer.u2(nameTypeIdx);
     currentIndex++;
     
-    memberRefIndices.put(className + ":" + name, currentIndex);
+    memberRefIndices.put(descriptor, currentIndex);
   }
 
-  public void addFieldRef(String className, String name, String type) throws Exception {
-    addMemberRef(ConstantType.Fieldref.tag(), className, name, type);
+  public void addFieldRef(MemberDescriptor descriptor) throws Exception {
+    addMemberRef(ConstantType.Fieldref.tag(), descriptor);
   }
 
-  public void addMethodRef(String className, String name, String type) throws Exception {
-    addMemberRef(ConstantType.Methodref.tag(), className, name, type);
+  public void addMethodRef(MemberDescriptor descriptor) throws Exception {
+    addMemberRef(ConstantType.Methodref.tag(), descriptor);
   }
 
-  public void addInterfaceMethodRef(String className, String name, String type) throws Exception {
-    addMemberRef(ConstantType.InterfaceMethodref.tag(), className, name, type);
+  public void addInterfaceMethodRef(MemberDescriptor descriptor) throws Exception {
+    addMemberRef(ConstantType.InterfaceMethodref.tag(), descriptor);
   }
 
   private void addNumber(int numberType, int bytes) {
@@ -194,7 +200,10 @@ public class ConstantPool implements WriteableByteStream {
     addLongNumber(ConstantType.Double.tag(), Double.doubleToLongBits(val));
   }
 
-  public void addNameAndType(String name, String type) throws Exception {
+  public void addNameAndType(Descriptor descriptor) throws Exception {
+    String name = descriptor.getName();
+    String type = descriptor.getTypeString();
+    
     int nameIdx = this.getUtf8Index(name);
     if(nameIdx == -1) {
       throw new Exception("Name " + name + " not found!");
@@ -210,12 +219,15 @@ public class ConstantPool implements WriteableByteStream {
     writer.u2(typeIdx);
     currentIndex++;
     
-    this.nameAndTypeIndices.put(new NameAndType(name, type), currentIndex);
+    this.nameAndTypeIndices.put(descriptor, currentIndex);
   }
   
-  public void addVariable(String variableName, String type) {
+  public void addVariable(Descriptor descriptor) {
+    String variableName = descriptor.getName();
+    String type = descriptor.getTypeString();
+    
     this.addUtf8(variableName);
-    this.variableIndices.put(variableName, currentIndex);
+    this.variableIndices.put(descriptor, currentIndex);
     
     this.addUtf8(type);
   }

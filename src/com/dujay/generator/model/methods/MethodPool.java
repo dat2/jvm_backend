@@ -13,17 +13,19 @@ public class MethodPool implements WriteableByteStream {
   
   private List<Method> methods;
   private ByteArrayOutputStream bytes;
+  private ConstantPool constants;
   
-  public MethodPool() {
+  public MethodPool(ConstantPool constants) {
     methods = new ArrayList<Method>();
     bytes = new ByteArrayOutputStream();
+    this.constants = constants;
   }
   
   public void addMethod(Method m) {
     methods.add(m);
   }
   
-  public void prepareStream(ConstantPool constants) throws IOException {
+  public void prepareStream() throws IOException {
     ByteStreamWriter writer = new ByteStreamWriter(bytes);
     for(Method m : methods) {
       m.prepareStream(constants);
