@@ -1,4 +1,4 @@
-package com.dujay.generator.model.methods;
+package com.dujay.generator.model.attributes;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

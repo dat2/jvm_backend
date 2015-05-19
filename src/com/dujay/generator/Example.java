@@ -4,26 +4,65 @@ import java.io.PrintStream;
 
 import com.dujay.generator.model.AccessFlag;
 import com.dujay.generator.model.ClassFileWriter;
-import com.dujay.generator.model.constants.ClassDescriptor;
+import com.dujay.generator.model.constants.ClassInfo;
 import com.dujay.generator.model.constants.ConstantPool;
 import com.dujay.generator.model.constants.MemberDescriptor;
 import com.dujay.generator.model.constants.MethodDescriptor;
 import com.dujay.generator.model.constants.VariableDescriptor;
 import com.dujay.generator.model.methods.Method;
 import com.dujay.generator.model.methods.MethodPool;
+import com.dujay.generator.redesign.constants.ClassInfoR;
+import com.dujay.generator.redesign.constants.ConstantPoolVisitor;
+import com.dujay.generator.redesign.constants.Descriptor;
+import com.dujay.generator.redesign.constants.MemberRefInfo;
+import com.dujay.generator.redesign.constants.NameAndTypeInfo;
+import com.dujay.generator.redesign.constants.Utf8Info;
 import com.dujay.generator.writers.ByteCodeWriter;
 
 public class Example {
   public static void main(String[] args) throws Exception {
-    ClassFileWriter writer = new ClassFileWriter(new ClassDescriptor(null, "Hello"));
+    
+    ConstantPoolVisitor v = new ConstantPoolVisitor();
+    
+    // System.out
+    ClassInfoR s = new ClassInfoR(System.class);
+    NameAndTypeInfo nt = new NameAndTypeInfo(new Utf8Info("out"),
+        new Utf8Info(Descriptor.fieldDescriptor(PrintStream.class)));
+    MemberRefInfo mr = new MemberRefInfo(MemberRefInfo.MemberRefType.FieldRef, s, nt);
+    mr.accept(v);
+
+    // PrintStream.println();
+    ClassInfoR p = new ClassInfoR(PrintStream.class);
+    NameAndTypeInfo nt2 = new NameAndTypeInfo(new Utf8Info("println"),
+        new Utf8Info(Descriptor.methodDescriptor(Void.class, String.class)));
+    MemberRefInfo mr2 = new MemberRefInfo(MemberRefInfo.MemberRefType.MethodRef, p, nt2);
+    mr2.accept(v);
+
+    // void main(String[] args)
+    NameAndTypeInfo nt3 = new NameAndTypeInfo(new Utf8Info("main"),
+        new Utf8Info(Descriptor.methodDescriptor(Void.class, (new String[]{}).getClass())));
+    nt3.accept(v);
+
+    // void <init>()
+    NameAndTypeInfo nt4 = new NameAndTypeInfo(new Utf8Info("<init>"),
+        new Utf8Info(Descriptor.methodDescriptor(Void.class)) );
+    nt4.accept(v);
+    
+    // blah, Object
+    ClassInfoR blahr = new ClassInfoR("blah");
+    ClassInfoR objectr = new ClassInfoR(Object.class);
+    blahr.accept(v);
+    objectr.accept(v);
+    
+    ClassFileWriter writer = new ClassFileWriter(new ClassInfo(null, "Hello"));
     
     ConstantPool constantPool = writer.getConstantPool();
     
     // add classes
-    ClassDescriptor blah = writer.getThisClass();
-    ClassDescriptor object = writer.getSuperClass();
-    ClassDescriptor system = new ClassDescriptor(System.class);
-    ClassDescriptor printStream = new ClassDescriptor(PrintStream.class);
+    ClassInfo blah = writer.getThisClass();
+    ClassInfo object = writer.getSuperClass();
+    ClassInfo system = new ClassInfo(System.class);
+    ClassInfo printStream = new ClassInfo(PrintStream.class);
     
     constantPool.addClass(system);
     constantPool.addClass(printStream);

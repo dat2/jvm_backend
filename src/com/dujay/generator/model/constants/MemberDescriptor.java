@@ -2,15 +2,15 @@ package com.dujay.generator.model.constants;
 
 public class MemberDescriptor extends Descriptor {
 
-  private ClassDescriptor ownerClass;
+  private ClassInfo ownerClass;
   
   // hijacking other descriptors
-  public MemberDescriptor(ClassDescriptor classDescriptor, Descriptor d) {
+  public MemberDescriptor(ClassInfo classDescriptor, Descriptor d) {
     super(d.getName(), d.getTypeString());
     this.ownerClass = classDescriptor;
   }
 
-  public ClassDescriptor getOwnerClass() {
+  public ClassInfo getOwnerClass() {
     return ownerClass;
   }
 }

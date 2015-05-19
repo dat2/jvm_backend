@@ -7,7 +7,7 @@ public class MethodDescriptor extends MemberDescriptor {
   private List<Class<?>> args;
   private Class<?> returnType;
   
-  public MethodDescriptor(ClassDescriptor ownerClass, String name, Class<?> returnType, Class<?>... args) {
+  public MethodDescriptor(ClassInfo ownerClass, String name, Class<?> returnType, Class<?>... args) {
     super(ownerClass, new Descriptor(name, ""));
     this.args = Arrays.asList(args);
     this.returnType = returnType;

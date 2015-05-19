@@ -1,29 +1,22 @@
 package com.dujay.generator.model;
 
 import java.io.IOException;
-import java.io.PrintStream;
 
-import com.dujay.generator.model.constants.ClassDescriptor;
+import com.dujay.generator.model.constants.ClassInfo;
 import com.dujay.generator.model.constants.ConstantPool;
-import com.dujay.generator.model.constants.Descriptor;
-import com.dujay.generator.model.constants.MemberDescriptor;
-import com.dujay.generator.model.constants.MethodDescriptor;
-import com.dujay.generator.model.constants.VariableDescriptor;
-import com.dujay.generator.model.methods.Method;
 import com.dujay.generator.model.methods.MethodPool;
-import com.dujay.generator.writers.ByteCodeWriter;
 
 public class ClassFileWriter {
   
   private ClassFile classFile;
   
-  private ClassDescriptor thisClass;
-  private ClassDescriptor superClass;
+  private ClassInfo thisClass;
+  private ClassInfo superClass;
   
   private ConstantPool constantsPool;
   private MethodPool methodsPool;
   
-  public ClassFileWriter(ClassDescriptor thisClass, ClassDescriptor superClass) {
+  public ClassFileWriter(ClassInfo thisClass, ClassInfo superClass) {
     this.classFile = new ClassFile(thisClass.getName() + ".class");
     this.thisClass = thisClass;
     this.superClass = superClass;
@@ -36,8 +29,8 @@ public class ClassFileWriter {
     this.methodsPool = new MethodPool(constantsPool);
   }
   
-  public ClassFileWriter(ClassDescriptor thisClass) {
-    this(thisClass, new ClassDescriptor(Object.class));
+  public ClassFileWriter(ClassInfo thisClass) {
+    this(thisClass, new ClassInfo(Object.class));
   }
   
   public ConstantPool getConstantPool() {
@@ -52,11 +45,11 @@ public class ClassFileWriter {
     return classFile;
   }
 
-  public ClassDescriptor getThisClass() {
+  public ClassInfo getThisClass() {
     return thisClass;
   }
 
-  public ClassDescriptor getSuperClass() {
+  public ClassInfo getSuperClass() {
     return superClass;
   }
   

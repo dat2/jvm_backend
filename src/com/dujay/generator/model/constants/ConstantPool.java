@@ -39,7 +39,7 @@ public class ConstantPool implements WriteableByteStream {
   private ByteArrayOutputStream stream;
   private ByteStreamWriter writer;
   
-  private Map<ClassDescriptor, Integer> classIndices;
+  private Map<ClassInfo, Integer> classIndices;
   private Map<MemberDescriptor, Integer> memberRefIndices;
   private Map<Descriptor, Integer> variableIndices;
   private Map<Descriptor, Integer> nameAndTypeIndices;
@@ -55,7 +55,7 @@ public class ConstantPool implements WriteableByteStream {
     
     currentIndex = 0;
     
-    classIndices = new HashMap<ClassDescriptor, Integer>();
+    classIndices = new HashMap<ClassInfo, Integer>();
     memberRefIndices = new HashMap<MemberDescriptor, Integer>();
     variableIndices = new HashMap<Descriptor, Integer>();
     nameAndTypeIndices = new HashMap<Descriptor, Integer>();
@@ -76,7 +76,7 @@ public class ConstantPool implements WriteableByteStream {
     return -1;
   }
   
-  public int getClassIndex(ClassDescriptor classDescriptor) {
+  public int getClassIndex(ClassInfo classDescriptor) {
     return getIndex(classIndices, classDescriptor);
   }
 
@@ -112,12 +112,12 @@ public class ConstantPool implements WriteableByteStream {
     return getSourceAttributeIndex() + 1;
   }
 
-  public void addClass(ClassDescriptor descriptor) {
+  public void addClass(ClassInfo descriptor) {
     writer.u1(ConstantType.Class.tag());
     writer.u2(++currentIndex + 1); // needs to be 1 indexed
     classIndices.put(descriptor, currentIndex);
     
-    this.addUtf8(descriptor.getClassString());
+    this.addUtf8(descriptor.getTypeString());
   }
   
   public void addMethod(MethodDescriptor descriptor) {
@@ -138,7 +138,7 @@ public class ConstantPool implements WriteableByteStream {
   }
 
   private void addMemberRef(int memberType, MemberDescriptor descriptor) throws Exception {
-    ClassDescriptor ownerClass = descriptor.getOwnerClass();
+    ClassInfo ownerClass = descriptor.getOwnerClass();
     
     int classIdx = this.getClassIndex(ownerClass);
     if(classIdx == -1) {

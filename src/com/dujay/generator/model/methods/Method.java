@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import com.dujay.generator.model.AccessFlag;
+import com.dujay.generator.model.attributes.CodeAttribute;
 import com.dujay.generator.model.constants.ConstantPool;
 import com.dujay.generator.writers.ByteCodeWriter;
 import com.dujay.generator.writers.ByteStreamWriter;

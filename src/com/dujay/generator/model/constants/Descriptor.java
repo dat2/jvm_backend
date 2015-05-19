@@ -10,7 +10,7 @@ public class Descriptor {
     this.typeString = typeString;
   }
   
-  public Descriptor(String name, ClassDescriptor classType) {
+  public Descriptor(String name, ClassInfo classType) {
     this.name = name;
     this.typeString = classType.getTypeString();
   }
