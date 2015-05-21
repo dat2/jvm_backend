@@ -4,6 +4,7 @@ import com.dujay.generator.redesign.constants.ClassInfoR;
 import com.dujay.generator.redesign.constants.ConstantPoolR;
 import com.dujay.generator.redesign.constants.MemberRefInfo;
 import com.dujay.generator.redesign.constants.NameAndTypeInfo;
+import com.dujay.generator.redesign.constants.StringInfo;
 import com.dujay.generator.redesign.constants.Utf8Info;
 
 public interface Visitor<T> {
@@ -11,7 +12,7 @@ public interface Visitor<T> {
   // constant structures
   public T visit(ClassInfoR c);
   public T visit(MemberRefInfo m);
-//  public T visit(StringInfo i);
+  public T visit(StringInfo i);
 //  public T visit(NumberInfo n);
 //  public T visit(LongNumberInfo ln);
   public T visit(NameAndTypeInfo nt);

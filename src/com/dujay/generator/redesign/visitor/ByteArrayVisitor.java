@@ -6,6 +6,7 @@ import com.dujay.generator.redesign.constants.ClassInfoR;
 import com.dujay.generator.redesign.constants.ConstantPoolR;
 import com.dujay.generator.redesign.constants.MemberRefInfo;
 import com.dujay.generator.redesign.constants.NameAndTypeInfo;
+import com.dujay.generator.redesign.constants.StringInfo;
 import com.dujay.generator.redesign.constants.Utf8Info;
 
 public class ByteArrayVisitor implements Visitor<ByteArrayOutputStream> {
@@ -33,6 +34,10 @@ public class ByteArrayVisitor implements Visitor<ByteArrayOutputStream> {
   public void u4(int x) {
     writeInts(x >> 24, x >> 16, x >> 8, x);
   }
+  
+  public ByteArrayOutputStream getBytes() {
+    return bytes;
+  }
 
   @Override
   public ByteArrayOutputStream visit(ClassInfoR c) {
@@ -51,6 +56,11 @@ public class ByteArrayVisitor implements Visitor<ByteArrayOutputStream> {
 
   @Override
   public ByteArrayOutputStream visit(Utf8Info u) {
+    return bytes;
+  }
+
+  @Override
+  public ByteArrayOutputStream visit(StringInfo i) {
     return bytes;
   }
 

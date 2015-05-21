@@ -22,7 +22,7 @@ public class Descriptor {
     }
     // array classes
     if(c.isArray()) {
-      return c.getName(); // its already formatted for us in the way we want
+      return c.getName().replace('.', '/'); // its already formatted for us in the way we want
     }
     // general classes
     return "L" + c.getTypeName().replace('.', '/') + ";";
@@ -32,7 +32,7 @@ public class Descriptor {
     
     String parameterString = Arrays.asList(parameters).stream()
         .map(Descriptor::fieldDescriptor)
-        .collect(Collectors.joining(""));
+        .collect(Collectors.joining());
     
     return "(" + parameterString + ")" + Descriptor.fieldDescriptor(returnClass);
   }

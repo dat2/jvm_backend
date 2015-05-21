@@ -1,6 +1,8 @@
 package com.dujay.generator.redesign.constants;
 
 import java.io.ByteArrayOutputStream;
+import java.util.Arrays;
+import java.util.List;
 
 import com.dujay.generator.redesign.visitor.ByteArrayVisitor;
 
@@ -52,10 +54,42 @@ public class ConstantPoolVisitor extends ByteArrayVisitor {
   }
   
   @Override
+  public ByteArrayOutputStream visit(StringInfo i) {
+    
+    u1(i.tag());
+    u2(i.getUtf8().getIndex());
+    
+    return super.visit(i);
+  }
+  
+  @Override
   public ByteArrayOutputStream visit(ConstantPoolR cp) {
     
-    // write all the structures in the constant pool
+    u2(cp.length() - 1);
+    System.out.println(cp.length());
+    
+    int index = 1;
+    
+    cp.getThisClass().getUtf8().setIndex(2);
+    cp.getSuperClass().getUtf8().setIndex(4);
+    index = acceptAll(Arrays.asList(cp.getThisClass(), cp.getThisClass().getUtf8(),
+        cp.getSuperClass(), cp.getSuperClass().getUtf8()), index);
+
+    index = acceptAll(cp.getUtf8s(), index);
+    index = acceptAll(cp.getStrings(), index);
+    index = acceptAll(cp.getClasses(), index);
+    index = acceptAll(cp.getNamesAndTypes(), index);
+    index = acceptAll(cp.getMembers(), index);
     
     return super.visit(cp);
+  }
+  
+  private int acceptAll(List<? extends ConstantInfo> list, int index) {
+    return list.stream().reduce(index, (i,x) -> {
+      x.setIndex(i);
+      x.accept(this);
+      System.out.println(x);
+      return i + 1;
+    }, (x,y) -> x + y);
   }
 }

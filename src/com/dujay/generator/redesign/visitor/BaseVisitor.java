@@ -4,6 +4,7 @@ import com.dujay.generator.redesign.constants.ClassInfoR;
 import com.dujay.generator.redesign.constants.ConstantPoolR;
 import com.dujay.generator.redesign.constants.MemberRefInfo;
 import com.dujay.generator.redesign.constants.NameAndTypeInfo;
+import com.dujay.generator.redesign.constants.StringInfo;
 import com.dujay.generator.redesign.constants.Utf8Info;
 
 /**
@@ -31,6 +32,11 @@ public class BaseVisitor<T> implements Visitor<T> {
 
   @Override
   public T visit(Utf8Info u) {
+    return null;
+  }
+
+  @Override
+  public T visit(StringInfo i) {
     return null;
   }
 
