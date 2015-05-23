@@ -1,11 +1,11 @@
 package com.dujay.generator.redesign.visitor;
 
-import com.dujay.generator.redesign.constants.ClassInfoR;
-import com.dujay.generator.redesign.constants.ConstantPoolR;
-import com.dujay.generator.redesign.constants.MemberRefInfo;
-import com.dujay.generator.redesign.constants.NameAndTypeInfo;
-import com.dujay.generator.redesign.constants.StringInfo;
-import com.dujay.generator.redesign.constants.Utf8Info;
+import com.dujay.generator.constants.ClassInfoR;
+import com.dujay.generator.constants.ConstantPool;
+import com.dujay.generator.constants.MemberRefInfo;
+import com.dujay.generator.constants.NameAndTypeInfo;
+import com.dujay.generator.constants.StringInfo;
+import com.dujay.generator.constants.Utf8Info;
 
 /**
  * A simple base visitor class that lets users implement some methods, rather than all.
@@ -41,7 +41,7 @@ public class BaseVisitor<T> implements Visitor<T> {
   }
 
   @Override
-  public T visit(ConstantPoolR cp) {
+  public T visit(ConstantPool cp) {
     return null;
   }
 

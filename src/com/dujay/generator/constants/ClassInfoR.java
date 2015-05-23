@@ -1,5 +1,6 @@
-package com.dujay.generator.redesign.constants;
+package com.dujay.generator.constants;
 
+import com.dujay.generator.enums.ConstantTag;
 import com.dujay.generator.redesign.visitor.Element;
 import com.dujay.generator.redesign.visitor.Visitor;
 
@@ -26,7 +27,7 @@ public class ClassInfoR extends ConstantInfo implements Element {
   
   @Override
   public int tag() {
-    return InfoTag.Class.tag();
+    return ConstantTag.Class.tag();
   }
 
   @Override

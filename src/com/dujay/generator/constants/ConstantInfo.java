@@ -1,4 +1,4 @@
-package com.dujay.generator.redesign.constants;
+package com.dujay.generator.constants;
 
 import com.dujay.generator.redesign.visitor.Element;
 

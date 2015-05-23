@@ -1,6 +1,6 @@
-package com.dujay.generator.redesign.constants;
+package com.dujay.generator.enums;
 
-public enum InfoTag {
+public enum ConstantTag {
   
   Class(7),
   Fieldref(9),
@@ -18,7 +18,7 @@ public enum InfoTag {
   InvokeDynamic(18);
 
   private int tag;
-  InfoTag(int flag) {
+  ConstantTag(int flag) {
     this.tag = flag;
   }
   

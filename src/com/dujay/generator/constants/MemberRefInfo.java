@@ -1,18 +1,19 @@
-package com.dujay.generator.redesign.constants;
+package com.dujay.generator.constants;
 
+import com.dujay.generator.enums.ConstantTag;
 import com.dujay.generator.redesign.visitor.Element;
 import com.dujay.generator.redesign.visitor.Visitor;
 
 public class MemberRefInfo extends ConstantInfo implements Element {
   
   public static enum MemberRefType {
-    FieldRef(InfoTag.Fieldref),
-    MethodRef(InfoTag.Methodref),
-    InterfaceMethodRef(InfoTag.InterfaceMethodref);
+    FieldRef(ConstantTag.Fieldref),
+    MethodRef(ConstantTag.Methodref),
+    InterfaceMethodRef(ConstantTag.InterfaceMethodref);
     
-    private InfoTag tag;
+    private ConstantTag tag;
     
-    MemberRefType(InfoTag tag) {
+    MemberRefType(ConstantTag tag) {
       this.tag = tag;
     }
     

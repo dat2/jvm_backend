@@ -1,4 +1,4 @@
-package com.dujay.generator.redesign.constants;
+package com.dujay.generator.constants;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,7 +7,7 @@ import java.util.Optional;
 import com.dujay.generator.redesign.visitor.Element;
 import com.dujay.generator.redesign.visitor.Visitor;
 
-public class ConstantPoolR implements Element {
+public class ConstantPool implements Element {
   
   private List<ClassInfoR> classes;
   private List<MemberRefInfo> members;
@@ -23,7 +23,7 @@ public class ConstantPoolR implements Element {
   
   private ConstantPoolVisitor v;
   
-  public ConstantPoolR() {
+  public ConstantPool() {
     classes = new ArrayList<ClassInfoR>();
     members = new ArrayList<MemberRefInfo>();
     namesAndTypes = new ArrayList<NameAndTypeInfo>();

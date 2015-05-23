@@ -2,12 +2,12 @@ package com.dujay.generator.redesign.visitor;
 
 import java.io.ByteArrayOutputStream;
 
-import com.dujay.generator.redesign.constants.ClassInfoR;
-import com.dujay.generator.redesign.constants.ConstantPoolR;
-import com.dujay.generator.redesign.constants.MemberRefInfo;
-import com.dujay.generator.redesign.constants.NameAndTypeInfo;
-import com.dujay.generator.redesign.constants.StringInfo;
-import com.dujay.generator.redesign.constants.Utf8Info;
+import com.dujay.generator.constants.ClassInfoR;
+import com.dujay.generator.constants.ConstantPool;
+import com.dujay.generator.constants.MemberRefInfo;
+import com.dujay.generator.constants.NameAndTypeInfo;
+import com.dujay.generator.constants.StringInfo;
+import com.dujay.generator.constants.Utf8Info;
 
 public class ByteArrayVisitor implements Visitor<ByteArrayOutputStream> {
   
@@ -65,7 +65,7 @@ public class ByteArrayVisitor implements Visitor<ByteArrayOutputStream> {
   }
 
   @Override
-  public ByteArrayOutputStream visit(ConstantPoolR cp) {
+  public ByteArrayOutputStream visit(ConstantPool cp) {
     return bytes;
   }
 }

@@ -1,5 +1,6 @@
-package com.dujay.generator.redesign.constants;
+package com.dujay.generator.constants;
 
+import com.dujay.generator.enums.ConstantTag;
 import com.dujay.generator.redesign.visitor.Visitor;
 
 public class StringInfo extends ConstantInfo {
@@ -12,7 +13,7 @@ public class StringInfo extends ConstantInfo {
 
   @Override
   public int tag() {
-    return InfoTag.String.tag();
+    return ConstantTag.String.tag();
   }
 
   public Utf8Info getUtf8() {

@@ -2,136 +2,61 @@ package com.dujay.generator;
 
 import java.io.PrintStream;
 
-import com.dujay.generator.model.AccessFlag;
-import com.dujay.generator.model.ClassFileWriter;
-import com.dujay.generator.model.constants.ClassInfo;
-import com.dujay.generator.model.constants.ConstantPool;
-import com.dujay.generator.model.constants.MemberDescriptor;
-import com.dujay.generator.model.constants.MethodDescriptor;
-import com.dujay.generator.model.constants.VariableDescriptor;
-import com.dujay.generator.model.methods.Method;
-import com.dujay.generator.model.methods.MethodPool;
-import com.dujay.generator.redesign.constants.ClassInfoR;
-import com.dujay.generator.redesign.constants.ConstantPoolVisitor;
-import com.dujay.generator.redesign.constants.Descriptor;
-import com.dujay.generator.redesign.constants.MemberRefInfo;
-import com.dujay.generator.redesign.constants.NameAndTypeInfo;
-import com.dujay.generator.redesign.constants.Utf8Info;
-import com.dujay.generator.writers.ByteCodeWriter;
+import com.dujay.generator.constants.ClassInfoR;
+import com.dujay.generator.constants.ConstantPool;
+import com.dujay.generator.constants.Descriptor;
+import com.dujay.generator.constants.MemberRefInfo;
+import com.dujay.generator.constants.NameAndTypeInfo;
+import com.dujay.generator.constants.StringInfo;
+import com.dujay.generator.constants.Utf8Info;
 
 public class Example {
   public static void main(String[] args) throws Exception {
-    
-    ConstantPoolVisitor v = new ConstantPoolVisitor();
+
+    ConstantPool cpr = new ConstantPool();
     
     // System.out
-    ClassInfoR s = new ClassInfoR(System.class);
+    ClassInfoR systemr = new ClassInfoR(System.class);
     NameAndTypeInfo nt = new NameAndTypeInfo(new Utf8Info("out"),
         new Utf8Info(Descriptor.fieldDescriptor(PrintStream.class)));
-    MemberRefInfo mr = new MemberRefInfo(MemberRefInfo.MemberRefType.FieldRef, s, nt);
-    mr.accept(v);
+    MemberRefInfo outRef = new MemberRefInfo(MemberRefInfo.MemberRefType.FieldRef, systemr, nt);
+    cpr.add(systemr);
+    cpr.add(nt);
+    cpr.add(outRef);
 
     // PrintStream.println();
     ClassInfoR p = new ClassInfoR(PrintStream.class);
     NameAndTypeInfo nt2 = new NameAndTypeInfo(new Utf8Info("println"),
         new Utf8Info(Descriptor.methodDescriptor(Void.class, String.class)));
-    MemberRefInfo mr2 = new MemberRefInfo(MemberRefInfo.MemberRefType.MethodRef, p, nt2);
-    mr2.accept(v);
-
+    MemberRefInfo printlnRef = new MemberRefInfo(MemberRefInfo.MemberRefType.MethodRef, p, nt2);
+    cpr.add(p);
+    cpr.add(nt2);
+    cpr.add(printlnRef);
+    
     // void main(String[] args)
     NameAndTypeInfo nt3 = new NameAndTypeInfo(new Utf8Info("main"),
         new Utf8Info(Descriptor.methodDescriptor(Void.class, (new String[]{}).getClass())));
-    nt3.accept(v);
+    cpr.add(nt3);
 
     // void <init>()
     NameAndTypeInfo nt4 = new NameAndTypeInfo(new Utf8Info("<init>"),
         new Utf8Info(Descriptor.methodDescriptor(Void.class)) );
-    nt4.accept(v);
+    MemberRefInfo initRef = new MemberRefInfo(MemberRefInfo.MemberRefType.MethodRef, cpr.getThisClass(), nt4);
+    cpr.add(nt4);
+    cpr.add(initRef);
     
-    // blah, Object
-    ClassInfoR blahr = new ClassInfoR("blah");
-    ClassInfoR objectr = new ClassInfoR(Object.class);
-    blahr.accept(v);
-    objectr.accept(v);
+    StringInfo helloWorld = new StringInfo("Hello World");
+    cpr.add(helloWorld);
     
-    ClassFileWriter writer = new ClassFileWriter(new ClassInfo(null, "Hello"));
+    Utf8Info code = new Utf8Info("Code");
+    Utf8Info lnt = new Utf8Info("LineNumberTable");
+    Utf8Info lvt = new Utf8Info("LocalVariableTable");
+    cpr.add(code);
+    cpr.add(lnt);
+    cpr.add(lvt);
     
-    ConstantPool constantPool = writer.getConstantPool();
+    cpr.addSource("Hello.jvm");
     
-    // add classes
-    ClassInfo blah = writer.getThisClass();
-    ClassInfo object = writer.getSuperClass();
-    ClassInfo system = new ClassInfo(System.class);
-    ClassInfo printStream = new ClassInfo(PrintStream.class);
-    
-    constantPool.addClass(system);
-    constantPool.addClass(printStream);
-    
-    // methods 
-    MethodDescriptor init = new MethodDescriptor(blah, "<init>", Void.class);
-    MethodDescriptor main = new MethodDescriptor(blah, "main", Void.class, (new String[] {}).getClass());
-    MethodDescriptor println = new MethodDescriptor(blah, "println", Void.class, String.class);
-    
-    constantPool.addMethod(init);
-    constantPool.addMethod(main);
-    constantPool.addMethod(println);
-    
-    // variables
-    VariableDescriptor out = new VariableDescriptor("out", printStream);
-    
-    constantPool.addVariable(out);
-    
-    // name / types
-    constantPool.addNameAndType(init);
-    constantPool.addNameAndType(out);
-    constantPool.addNameAndType(println);
-    
-    // method refs
-    MemberDescriptor initRef = new MemberDescriptor(object, init);
-    MemberDescriptor printlnRef = new MemberDescriptor(printStream, println);
-    
-    constantPool.addMethodRef(initRef);
-    constantPool.addMethodRef(printlnRef);
-    
-    // field refs
-    MemberDescriptor outRef = new MemberDescriptor(system, out);
-    
-    constantPool.addFieldRef(outRef);
-    
-    // constant values
-    constantPool.addString("Hello World");
-
-    // attribute names
-    constantPool.addUtf8("Code");
-    constantPool.addUtf8("LineNumberTable");
-    constantPool.addUtf8("LocalVariableTable");
-
-    constantPool.addSource("Hello.jvm");
-    
-    MethodPool methodPool = writer.getMethodPool();
-    
-    // Hello() 
-    Method constructorMethod = new Method("<init>", 1, 1, AccessFlag.ACC_PUBLIC);
-    ByteCodeWriter w = constructorMethod.getByteCodeWriter();
-    
-    w.aload_0();
-    w.invokespecial(constantPool.getMemberRefIndex(initRef));
-    w.vreturn();
-    
-    methodPool.addMethod(constructorMethod);
-    
-    // main(String[] args)
-    Method mainMethod = new Method("main", 2, 1, AccessFlag.ACC_PUBLIC, AccessFlag.ACC_STATIC);
-    w = mainMethod.getByteCodeWriter();
-    
-    w.getstatic(constantPool.getMemberRefIndex(outRef));
-    w.ldc(constantPool.getStringIndex("Hello World"));
-    w.invokevirtual(constantPool.getMemberRefIndex(printlnRef));
-    w.vreturn();
-    
-    methodPool.addMethod(mainMethod);
-    methodPool.prepareStream();
-    
-    writer.writeClassFile();
+    cpr.setIndices();
   }
 }

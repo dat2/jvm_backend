@@ -1,4 +1,4 @@
-package com.dujay.generator.redesign.constants;
+package com.dujay.generator.constants;
 
 import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
@@ -63,7 +63,7 @@ public class ConstantPoolVisitor extends ByteArrayVisitor {
   }
   
   @Override
-  public ByteArrayOutputStream visit(ConstantPoolR cp) {
+  public ByteArrayOutputStream visit(ConstantPool cp) {
     
     u2(cp.length() - 1);
     System.out.println(cp.length());
