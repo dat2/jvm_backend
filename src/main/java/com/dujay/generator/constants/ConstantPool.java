@@ -1,39 +1,43 @@
 package com.dujay.generator.constants;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import com.dujay.generator.redesign.visitor.Element;
-import com.dujay.generator.redesign.visitor.Visitor;
+import com.dujay.generator.visitor.Element;
+import com.dujay.generator.visitor.Visitor;
 
 public class ConstantPool implements Element {
   
-  private List<ClassInfoR> classes;
+  private List<ClassInfo> classes;
   private List<MemberRefInfo> members;
   private List<NameAndTypeInfo> namesAndTypes;
   private List<Utf8Info> utf8s;
   private List<StringInfo> strings;
   
-  private ClassInfoR thisClass;
-  private ClassInfoR superClass;
+  private ClassInfo thisClass;
+  private ClassInfo superClass;
   
   private Utf8Info source;
   private Utf8Info sourceFile;
   
-  private ConstantPoolVisitor v;
+  private DescriptorManager dm;
+  
+  private Visitor<ByteArrayOutputStream> v;
   
   public ConstantPool() {
-    classes = new ArrayList<ClassInfoR>();
+    classes = new ArrayList<ClassInfo>();
     members = new ArrayList<MemberRefInfo>();
     namesAndTypes = new ArrayList<NameAndTypeInfo>();
     utf8s = new ArrayList<Utf8Info>();
     strings = new ArrayList<StringInfo>();
     
     v = new ConstantPoolVisitor();
+    dm = new DescriptorManager();
   }
 
-  public List<ClassInfoR> getClasses() {
+  public List<ClassInfo> getClasses() {
     return classes;
   }
   
@@ -53,25 +57,25 @@ public class ConstantPool implements Element {
     return strings;
   }
 
-  public ClassInfoR getThisClass() {
+  public ClassInfo getThisClass() {
     return thisClass;
   }
 
-  public void setThisClass(ClassInfoR thisClass) {
+  public void setThisClass(ClassInfo thisClass) {
     this.thisClass = thisClass;
   }
 
-  public ClassInfoR getSuperClass() {
+  public ClassInfo getSuperClass() {
     return superClass;
   }
 
-  public void setSuperClass(ClassInfoR superClass) {
+  public void setSuperClass(ClassInfo superClass) {
     this.superClass = superClass;
   }
 
-  public void add(ClassInfoR e) {
+  public void add(ClassInfo e) {
     classes.add(e);
-    utf8s.add(e.getUtf8());
+    utf8s.add(e.getName());
   }
 
   public void add(MemberRefInfo e) {
@@ -115,15 +119,15 @@ public class ConstantPool implements Element {
         .findFirst();
   }
   
-  public Optional<ClassInfoR> getClass(String className) {
+  public Optional<ClassInfo> getClass(String className) {
     return classes.stream()
-        .filter(x -> x.getUtf8().getString().equals(className))
+        .filter(x -> x.getName().getString().equals(className))
         .findFirst();
   }
   
-  public Optional<MemberRefInfo> getMemberRef(String className, String memberName) {
+  public Optional<MemberRefInfo> getMemberRef(ClassInfo classInfo, String memberName) {
     return members.stream()
-        .filter(x -> x.getOwnerClass().getUtf8().getString().equals(className)
+        .filter(x -> x.getOwnerClass().getName().getString().equals(classInfo.getName().getString())
             && x.getNameAndType().getName().getString().equals(memberName) )
         .findFirst();
   }
@@ -135,7 +139,6 @@ public class ConstantPool implements Element {
   }
   
   public int length() {
-    // 1 is extra length (for some reason)
     // 4 is the constants for this, thisUtf8, super, superUtf8
     return 4
         + classes.size() + members.size() + namesAndTypes.size() + utf8s.size() + strings.size();
@@ -150,16 +153,24 @@ public class ConstantPool implements Element {
   public String toString() {
     return String
         .format(
-            "ConstantPoolR [classes=%s, members=%s, namesAndTypes=%s, utf8s=%s, thisClass=%s, superClass=%s]",
+            "ConstantPool [classes=%s, members=%s, namesAndTypes=%s, utf8s=%s, thisClass=%s, superClass=%s]",
             classes, members, namesAndTypes, utf8s, thisClass, superClass);
   }
 
-  public void setIndices() {
-    this.accept(v);
+  public ByteArrayOutputStream generate() {
+    return this.accept(v);
   }
 
-  public ConstantPoolVisitor getVisitor() {
+  public Visitor<ByteArrayOutputStream> getVisitor() {
     return v;
+  }
+
+  public Utf8Info addDescriptor(String name, String descriptor) {
+    return dm.add(name, descriptor);
+  }
+
+  public Optional<Utf8Info> getDescriptor(String name) {
+    return dm.get(name);
   }
 
 }

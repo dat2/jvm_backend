@@ -1,27 +1,27 @@
 package com.dujay.generator.constants;
 
 import com.dujay.generator.enums.ConstantTag;
-import com.dujay.generator.redesign.visitor.Element;
-import com.dujay.generator.redesign.visitor.Visitor;
+import com.dujay.generator.visitor.Element;
+import com.dujay.generator.visitor.Visitor;
 
-public class ClassInfoR extends ConstantInfo implements Element {
+public class ClassInfo extends ConstantInfo implements Element {
   
   private Utf8Info utf8;
   
-  public ClassInfoR(Class<?> c) {
+  public ClassInfo(Class<?> c) {
     this.utf8 = new Utf8Info(c.getTypeName().replace('.', '/'));
   }
   
   // allows for synthetic classes
-  public ClassInfoR(String u) {
+  public ClassInfo(String u) {
     this.utf8 = new Utf8Info(u);
   }
   
-  public Utf8Info getUtf8() {
+  public Utf8Info getName() {
     return this.utf8;
   }
 
-  public int getUtf8Index() {
+  public int getNameIndex() {
     return utf8.getIndex();
   }
   
@@ -37,7 +37,7 @@ public class ClassInfoR extends ConstantInfo implements Element {
 
   @Override
   public String toString() {
-    return String.format("ClassInfo [nameIndex=%s, index=%s]", getUtf8Index(), getIndex());
+    return String.format("ClassInfo [name=%s, index=%s]", getName().getString(), getIndex());
   }
 
 }

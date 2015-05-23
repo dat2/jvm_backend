@@ -1,6 +1,6 @@
 package com.dujay.generator.constants;
 
-import com.dujay.generator.redesign.visitor.Element;
+import com.dujay.generator.visitor.Element;
 
 public abstract class ConstantInfo implements Element {
   public abstract int tag();

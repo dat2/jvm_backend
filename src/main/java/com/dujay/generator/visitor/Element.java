@@ -1,4 +1,4 @@
-package com.dujay.generator.redesign.visitor;
+package com.dujay.generator.visitor;
 
 /**
  * A visitable element class.

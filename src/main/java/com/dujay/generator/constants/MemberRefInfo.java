@@ -1,8 +1,8 @@
 package com.dujay.generator.constants;
 
 import com.dujay.generator.enums.ConstantTag;
-import com.dujay.generator.redesign.visitor.Element;
-import com.dujay.generator.redesign.visitor.Visitor;
+import com.dujay.generator.visitor.Element;
+import com.dujay.generator.visitor.Visitor;
 
 public class MemberRefInfo extends ConstantInfo implements Element {
   
@@ -23,10 +23,10 @@ public class MemberRefInfo extends ConstantInfo implements Element {
   }
   
   private MemberRefType memberRefType;
-  private ClassInfoR ownerClass;
+  private ClassInfo ownerClass;
   private NameAndTypeInfo nameAndType;
   
-  public MemberRefInfo(MemberRefType type, ClassInfoR ownerClass, NameAndTypeInfo nameAndType) {
+  public MemberRefInfo(MemberRefType type, ClassInfo ownerClass, NameAndTypeInfo nameAndType) {
     this.memberRefType = type;
     this.ownerClass = ownerClass;
     this.nameAndType = nameAndType;
@@ -45,7 +45,7 @@ public class MemberRefInfo extends ConstantInfo implements Element {
     return nameAndType.getIndex();
   }
 
-  public ClassInfoR getOwnerClass() {
+  public ClassInfo getOwnerClass() {
     return ownerClass;
   }
   
@@ -61,8 +61,8 @@ public class MemberRefInfo extends ConstantInfo implements Element {
   @Override
   public String toString() {
     return String.format(
-        "MemberRefInfo [memberRefType=%s, ownerClassIndex=%s, nameAndTypeIndex=%s, index=%s]",
-        memberRefType, ownerClass.getIndex(),
+        "MemberRefInfo [memberRefType=%s, ownerClass=%s, nameAndTypeIndex=%s, index=%s]",
+        memberRefType, ownerClass.getName().getString(),
         nameAndType.getIndex(), getIndex());
   }
 

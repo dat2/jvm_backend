@@ -1,8 +1,8 @@
 package com.dujay.generator.constants;
 
 import com.dujay.generator.enums.ConstantTag;
-import com.dujay.generator.redesign.visitor.Element;
-import com.dujay.generator.redesign.visitor.Visitor;
+import com.dujay.generator.visitor.Element;
+import com.dujay.generator.visitor.Visitor;
 
 public class Utf8Info extends ConstantInfo implements Element {
   

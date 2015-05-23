@@ -1,8 +1,8 @@
 package com.dujay.generator.constants;
 
 import com.dujay.generator.enums.ConstantTag;
-import com.dujay.generator.redesign.visitor.Element;
-import com.dujay.generator.redesign.visitor.Visitor;
+import com.dujay.generator.visitor.Element;
+import com.dujay.generator.visitor.Visitor;
 
 public class NameAndTypeInfo extends ConstantInfo implements Element {
   
@@ -42,8 +42,8 @@ public class NameAndTypeInfo extends ConstantInfo implements Element {
 
   @Override
   public String toString() {
-    return String.format("NameAndTypeInfo [nameIndex=%s, typeIndex=%s, index=%s]", 
-        getNameIndex(), getTypeIndex(), getIndex());
+    return String.format("NameAndTypeInfo [name=%s, type=%s, index=%s]", 
+        getName().getString(), getType().getString(), getIndex());
   }
 
 }

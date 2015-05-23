@@ -1,7 +1,7 @@
 package com.dujay.generator.constants;
 
 import com.dujay.generator.enums.ConstantTag;
-import com.dujay.generator.redesign.visitor.Visitor;
+import com.dujay.generator.visitor.Visitor;
 
 public class StringInfo extends ConstantInfo {
   
@@ -31,7 +31,7 @@ public class StringInfo extends ConstantInfo {
 
   @Override
   public String toString() {
-    return String.format("StringInfo [utf8index=%s, index=%s]", utf8.getIndex(), getIndex());
+    return String.format("StringInfo [string=%s, index=%s]", utf8.getString(), getIndex());
   }
 
 }
