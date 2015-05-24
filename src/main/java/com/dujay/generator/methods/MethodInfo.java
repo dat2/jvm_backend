@@ -6,7 +6,7 @@ import java.util.Optional;
 
 import com.dujay.generator.attributes.Attribute;
 import com.dujay.generator.attributes.CodeAttribute;
-import com.dujay.generator.constants.Utf8Info;
+import com.dujay.generator.constants.structures.Utf8Info;
 import com.dujay.generator.enums.AccessFlag;
 import com.dujay.generator.visitor.Element;
 import com.dujay.generator.visitor.Visitor;

@@ -1,4 +1,4 @@
-package com.dujay.generator.constants;
+package com.dujay.generator.constants.structures;
 
 import com.dujay.generator.enums.ConstantTag;
 import com.dujay.generator.visitor.Element;

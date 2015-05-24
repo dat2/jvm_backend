@@ -4,17 +4,30 @@ import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import com.dujay.generator.constants.structures.ClassInfo;
+import com.dujay.generator.constants.structures.ConstantInfo;
+import com.dujay.generator.constants.structures.MemberRefInfo;
+import com.dujay.generator.constants.structures.NameAndTypeInfo;
+import com.dujay.generator.constants.structures.StringInfo;
+import com.dujay.generator.constants.structures.Utf8Info;
+import com.dujay.generator.constants.visitors.CodeGenVisitor;
+import com.dujay.generator.constants.visitors.IndexVisitor;
+import com.dujay.generator.typeclasses.Generatable;
 import com.dujay.generator.visitor.Element;
 import com.dujay.generator.visitor.Visitor;
 
-public class ConstantPool implements Element {
+public class ConstantPool implements Element, Generatable {
   
   private List<ClassInfo> classes;
   private List<MemberRefInfo> members;
   private List<NameAndTypeInfo> namesAndTypes;
   private List<Utf8Info> utf8s;
   private List<StringInfo> strings;
+  
+  private List<ConstantInfo> finalList;
   
   private ClassInfo thisClass;
   private ClassInfo superClass;
@@ -24,17 +37,51 @@ public class ConstantPool implements Element {
   
   private DescriptorManager dm;
   
-  private Visitor<ByteArrayOutputStream> v;
-  
-  public ConstantPool() {
+  private ConstantPool() {
     classes = new ArrayList<ClassInfo>();
     members = new ArrayList<MemberRefInfo>();
     namesAndTypes = new ArrayList<NameAndTypeInfo>();
     utf8s = new ArrayList<Utf8Info>();
     strings = new ArrayList<StringInfo>();
     
-    v = new ConstantPoolVisitor();
-    dm = new DescriptorManager();
+    finalList = new ArrayList<ConstantInfo>();
+    
+    dm = DescriptorManager.empty();
+  }
+  
+  public static ConstantPool empty() {
+    return new ConstantPool();
+  }
+  
+  public static ConstantPool plus(ConstantPool a, ConstantPool b) {
+    ConstantPool rtn = empty();
+    
+    rtn.classes.addAll(a.classes);
+    rtn.classes.addAll(b.classes);
+    
+    rtn.members.addAll(a.members);
+    rtn.members.addAll(b.members);
+    
+    rtn.namesAndTypes.addAll(a.namesAndTypes);
+    rtn.namesAndTypes.addAll(b.namesAndTypes);
+    
+    rtn.utf8s.addAll(a.utf8s);
+    rtn.utf8s.addAll(b.utf8s);
+    
+    rtn.strings.addAll(a.strings);
+    rtn.strings.addAll(b.strings);
+    
+    rtn.finalList.addAll(a.finalList);
+    rtn.finalList.addAll(b.finalList);
+    
+    rtn.dm = DescriptorManager.plus(a.dm, b.dm);
+    
+    return rtn;
+  }
+  
+  public static ConstantPool concat(ConstantPool... pools) {
+    return Stream.of(pools)
+        .reduce(empty(), ConstantPool::plus);
   }
 
   public List<ClassInfo> getClasses() {
@@ -137,12 +184,6 @@ public class ConstantPool implements Element {
         .filter(x -> x.getUtf8().getString().equals(utf8))
         .findFirst();
   }
-  
-  public int length() {
-    // 4 is the constants for this, thisUtf8, super, superUtf8
-    return 4
-        + classes.size() + members.size() + namesAndTypes.size() + utf8s.size() + strings.size();
-  }
 
   @Override
   public <T> T accept(Visitor<T> visitor) {
@@ -157,20 +198,26 @@ public class ConstantPool implements Element {
             classes, members, namesAndTypes, utf8s, thisClass, superClass);
   }
 
-  public ByteArrayOutputStream generate() {
-    return this.accept(v);
-  }
-
-  public Visitor<ByteArrayOutputStream> getVisitor() {
-    return v;
-  }
-
   public Utf8Info addDescriptor(String name, String descriptor) {
     return dm.add(name, descriptor);
   }
 
   public Optional<Utf8Info> getDescriptor(String name) {
     return dm.get(name);
+  }
+
+  public ByteArrayOutputStream generate() {
+    return this.accept(new CodeGenVisitor());
+  }
+  
+  public void setIndices() {
+    // index visitor controls where to place the constants in the final .class file
+    this.finalList = this.accept(new IndexVisitor())
+        .collect(Collectors.toList());
+  }
+  
+  public List<ConstantInfo> getConstants() {
+    return finalList;
   }
 
 }

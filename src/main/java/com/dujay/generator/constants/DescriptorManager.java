@@ -3,12 +3,33 @@ package com.dujay.generator.constants;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
+
+import com.dujay.generator.constants.structures.Utf8Info;
 
 public class DescriptorManager {
   private Map<String, Utf8Info> descriptors;
   
-  public DescriptorManager() {
+  private DescriptorManager() {
     this.descriptors = new HashMap<String, Utf8Info>();
+  }
+  
+  public static DescriptorManager empty() {
+    return new DescriptorManager();
+  }
+  
+  public static DescriptorManager plus(DescriptorManager a, DescriptorManager b) {
+    DescriptorManager m = empty();
+    
+    Function<DescriptorManager, Void> addAll = x -> {
+      m.descriptors.putAll(x.descriptors);
+      return null;
+    };
+    
+    addAll.apply(a);
+    addAll.apply(b);
+    
+    return empty();
   }
   
   public Utf8Info add(String name, String descriptorString) {

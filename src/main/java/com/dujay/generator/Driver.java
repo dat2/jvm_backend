@@ -8,13 +8,13 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 import com.dujay.generator.attributes.CodeAttribute;
-import com.dujay.generator.constants.ClassInfo;
 import com.dujay.generator.constants.ConstantPool;
 import com.dujay.generator.constants.Descriptor;
-import com.dujay.generator.constants.MemberRefInfo;
-import com.dujay.generator.constants.NameAndTypeInfo;
-import com.dujay.generator.constants.StringInfo;
-import com.dujay.generator.constants.Utf8Info;
+import com.dujay.generator.constants.structures.ClassInfo;
+import com.dujay.generator.constants.structures.MemberRefInfo;
+import com.dujay.generator.constants.structures.NameAndTypeInfo;
+import com.dujay.generator.constants.structures.StringInfo;
+import com.dujay.generator.constants.structures.Utf8Info;
 import com.dujay.generator.enums.AccessFlag;
 import com.dujay.generator.file.ClassFile;
 import com.dujay.generator.methods.MethodInfo;
@@ -138,12 +138,8 @@ public class Driver {
   public static void main(String[] args) throws Exception {
     Logger root = (Logger)LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
     root.setLevel(Level.DEBUG);
-
-    ClassFile cls = new ClassFile("Hello");
-
-    logger.debug("headers");
-    cls.writeMagicNumber();
-    cls.writeVersion(ClassFile.JAVA8_MAJOR, ClassFile.JAVA8_MINOR);
+    
+    ClassFile cls = new ClassFile("Hello", AccessFlag.PUBLIC, AccessFlag.SUPER, AccessFlag.SYNTHETIC);
 
     // Constant Pool
     ConstantPool cpr = cls.getConstantPool();
@@ -153,35 +149,14 @@ public class Driver {
 
     generateInitConstants(cpr);
     generateMainConstants(cpr);
-
-    // write it
-    logger.debug("constant pool");
-    cls.writeConstantPool();
-
-    logger.debug("class info");
-    cls.writeAccessFlags(AccessFlag.PUBLIC, AccessFlag.SUPER, AccessFlag.SYNTHETIC);
-    cls.writeClassIndices();
-
-    // TODO interfaces
-    logger.debug("interfaces");
-    cls.writeInterfaces();
-
-    // TODO fields
-    logger.debug("fields");
-    cls.writeFields();
-
+    
+    cpr.setIndices();
+    
     // Method Pool
     MethodPool mp = cls.getMethodPool();
 
     generateInitMethod(cpr, mp);
     generateMainMethod(cpr, mp);
-
-    logger.debug("methods");
-    cls.writeMethods();
-
-    // Attributes
-    logger.debug("attributes");
-    cls.writeAttributes();
 
     cls.save();
   }

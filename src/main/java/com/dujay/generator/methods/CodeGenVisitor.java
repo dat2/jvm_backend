@@ -10,7 +10,7 @@ import ch.qos.logback.classic.Logger;
 import com.dujay.generator.attributes.CodeAttribute;
 import com.dujay.generator.visitor.ByteArrayVisitor;
 
-public class MethodPoolVisitor extends ByteArrayVisitor {
+public class CodeGenVisitor extends ByteArrayVisitor {
   
   private static final Logger logger = (Logger) LoggerFactory.getLogger("mpvisitor");
 

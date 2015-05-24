@@ -3,12 +3,12 @@ package com.dujay.generator.visitor;
 import java.util.List;
 
 import com.dujay.generator.attributes.CodeAttribute;
-import com.dujay.generator.constants.ClassInfo;
 import com.dujay.generator.constants.ConstantPool;
-import com.dujay.generator.constants.MemberRefInfo;
-import com.dujay.generator.constants.NameAndTypeInfo;
-import com.dujay.generator.constants.StringInfo;
-import com.dujay.generator.constants.Utf8Info;
+import com.dujay.generator.constants.structures.ClassInfo;
+import com.dujay.generator.constants.structures.MemberRefInfo;
+import com.dujay.generator.constants.structures.NameAndTypeInfo;
+import com.dujay.generator.constants.structures.StringInfo;
+import com.dujay.generator.constants.structures.Utf8Info;
 import com.dujay.generator.methods.MethodInfo;
 import com.dujay.generator.methods.MethodPool;
 

@@ -4,18 +4,16 @@ import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.dujay.generator.typeclasses.Generatable;
 import com.dujay.generator.visitor.Element;
 import com.dujay.generator.visitor.Visitor;
 
-public class MethodPool implements Element {
+public class MethodPool implements Element, Generatable {
   
   private List<MethodInfo> methods;
   
-  private Visitor<ByteArrayOutputStream> v;
-  
   public MethodPool() {
     this.methods = new ArrayList<MethodInfo>();
-    v = new MethodPoolVisitor();
   }
 
   public boolean add(MethodInfo e) {
@@ -41,7 +39,7 @@ public class MethodPool implements Element {
   }
 
   public ByteArrayOutputStream generate() {
-    return v.visit(this);
+    return this.accept(new CodeGenVisitor());
   }
 
 }

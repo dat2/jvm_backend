@@ -1,6 +1,6 @@
 package com.dujay.generator.attributes;
 
-import com.dujay.generator.constants.Utf8Info;
+import com.dujay.generator.constants.structures.Utf8Info;
 import com.dujay.generator.visitor.Element;
 
 public abstract class Attribute implements Element {
