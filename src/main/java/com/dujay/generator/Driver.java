@@ -12,9 +12,7 @@ import com.dujay.generator.constants.ConstantPool;
 import com.dujay.generator.constants.Descriptor;
 import com.dujay.generator.constants.structures.ClassInfo;
 import com.dujay.generator.constants.structures.MemberRefInfo;
-import com.dujay.generator.constants.structures.NameAndTypeInfo;
 import com.dujay.generator.constants.structures.StringInfo;
-import com.dujay.generator.constants.structures.Utf8Info;
 import com.dujay.generator.enums.AccessFlag;
 import com.dujay.generator.file.ClassFile;
 import com.dujay.generator.methods.MethodInfo;
@@ -23,38 +21,6 @@ import com.dujay.generator.methods.MethodPool;
 public class Driver {
   
   private final static Logger logger = (Logger) LoggerFactory.getLogger("driver");
-
-  private static void generateClasses(ConstantPool cpr) {
-    cpr.setThisClass(new ClassInfo("Hello"));
-    cpr.setSuperClass(new ClassInfo(Object.class));
-  }
-
-  private static void generateExtraInfo(ConstantPool cpr, String source) {
-    cpr.add(new Utf8Info("Code"));
-    cpr.add(new Utf8Info("LineNumberTable"));
-    cpr.add(new Utf8Info("LocalVariableTable"));
-
-    cpr.addSource(source);
-  }
-
-  public static void generateInitConstants(ConstantPool cpr) {
-    // void <init>()
-    Utf8Info name = new Utf8Info("<init>");
-    Utf8Info descriptor = cpr.addDescriptor("<init>",
-        Descriptor.methodDescriptor(Void.class));
-
-    NameAndTypeInfo nt = new NameAndTypeInfo(name, descriptor);
-    MemberRefInfo initRef = new MemberRefInfo(
-        MemberRefInfo.MemberRefType.MethodRef, cpr.getThisClass(), nt);
-
-    cpr.add(nt);
-    cpr.add(initRef);
-
-    // Object.<init>
-    MemberRefInfo objectInitRef = new MemberRefInfo(
-        MemberRefInfo.MemberRefType.MethodRef, cpr.getSuperClass(), nt);
-    cpr.add(objectInitRef);
-  }
 
   public static void generateInitMethod(ConstantPool cpr, MethodPool mp) {
     MethodInfo init = new MethodInfo(cpr.getUtf8("<init>").get(), cpr
@@ -73,41 +39,6 @@ public class Driver {
     logger.debug("end <init> code");
 
     mp.add(init);
-  }
-
-  public static void generateMainConstants(ConstantPool cpr) {
-    // REQUIRED CONSTANTS
-
-    // System.out
-    ClassInfo systemr = new ClassInfo(System.class);
-    NameAndTypeInfo nt = new NameAndTypeInfo(new Utf8Info("out"),
-        cpr.addDescriptor("out", Descriptor.fieldDescriptor(PrintStream.class)));
-    MemberRefInfo outRef = new MemberRefInfo(
-        MemberRefInfo.MemberRefType.FieldRef, systemr, nt);
-    cpr.add(systemr);
-    cpr.add(nt);
-    cpr.add(outRef);
-
-    // PrintStream.println();
-    ClassInfo p = new ClassInfo(PrintStream.class);
-    NameAndTypeInfo nt2 = new NameAndTypeInfo(new Utf8Info("println"),
-        cpr.addDescriptor("println",
-            Descriptor.methodDescriptor(Void.class, String.class)));
-    MemberRefInfo printlnRef = new MemberRefInfo(
-        MemberRefInfo.MemberRefType.MethodRef, p, nt2);
-    cpr.add(p);
-    cpr.add(nt2);
-    cpr.add(printlnRef);
-
-    // hello world
-    StringInfo helloWorld = new StringInfo("Hello World");
-    cpr.add(helloWorld);
-
-    // void main(String[] args)
-    Utf8Info name = new Utf8Info("main");
-    NameAndTypeInfo nt3 = new NameAndTypeInfo(name, cpr.addDescriptor("main",
-        Descriptor.methodDescriptor(Void.class, (new String[] {}).getClass())));
-    cpr.add(nt3);
   }
 
   public static void generateMainMethod(ConstantPool cpr, MethodPool mp) {
@@ -142,15 +73,34 @@ public class Driver {
     ClassFile cls = new ClassFile("Hello", AccessFlag.PUBLIC, AccessFlag.SUPER, AccessFlag.SYNTHETIC);
 
     // Constant Pool
-    ConstantPool cpr = cls.getConstantPool();
-
-    generateClasses(cpr);
-    generateExtraInfo(cpr, "Hello.jvm");
-
-    generateInitConstants(cpr);
-    generateMainConstants(cpr);
-    
-    cpr.setIndices();
+    ConstantPool cpr = cls.makeConstantPoolBuilder()
+      // this and super class
+      .thisClass("Hello")
+      .superClass(Object.class)
+      // attribute names
+      .utf8("Code")
+      // debug info
+      .utf8("LineNumberTable")
+      .utf8("LocalVariableTable")
+      .source("Hello.jvm")
+      // init method constants
+      .nameAndType("initNT", "<init>", Descriptor.methodDescriptor(Void.class))
+      .method("this", "initNT")
+      .method("super", "initNT")
+      // main method constants
+      .cClass("System", System.class)
+      .nameAndType("outNT", "out", Descriptor.fieldDescriptor(PrintStream.class))
+      .field("System", "outNT")
+      .cClass("PrintStream", PrintStream.class)
+      .nameAndType("printlnNT", "println", Descriptor.methodDescriptor(Void.class, String.class))
+      .method("PrintStream", "printlnNT")
+      .literal("Hello World")
+      .nameAndType("mainNT", "main", Descriptor.methodDescriptor(Void.class, (new String[] {}).getClass()))
+      .method("this", "mainNT")
+      // finally generate indices
+      .index()
+      // finally return the constant pool
+      .build();
     
     // Method Pool
     MethodPool mp = cls.getMethodPool();

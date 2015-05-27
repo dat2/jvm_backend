@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import com.dujay.generator.constants.structures.ClassInfo;
 import com.dujay.generator.constants.structures.ConstantInfo;
@@ -37,7 +36,7 @@ public class ConstantPool implements Element, Generatable {
   
   private DescriptorManager dm;
   
-  private ConstantPool() {
+  public ConstantPool() {
     classes = new ArrayList<ClassInfo>();
     members = new ArrayList<MemberRefInfo>();
     namesAndTypes = new ArrayList<NameAndTypeInfo>();
@@ -47,41 +46,6 @@ public class ConstantPool implements Element, Generatable {
     finalList = new ArrayList<ConstantInfo>();
     
     dm = DescriptorManager.empty();
-  }
-  
-  public static ConstantPool empty() {
-    return new ConstantPool();
-  }
-  
-  public static ConstantPool plus(ConstantPool a, ConstantPool b) {
-    ConstantPool rtn = empty();
-    
-    rtn.classes.addAll(a.classes);
-    rtn.classes.addAll(b.classes);
-    
-    rtn.members.addAll(a.members);
-    rtn.members.addAll(b.members);
-    
-    rtn.namesAndTypes.addAll(a.namesAndTypes);
-    rtn.namesAndTypes.addAll(b.namesAndTypes);
-    
-    rtn.utf8s.addAll(a.utf8s);
-    rtn.utf8s.addAll(b.utf8s);
-    
-    rtn.strings.addAll(a.strings);
-    rtn.strings.addAll(b.strings);
-    
-    rtn.finalList.addAll(a.finalList);
-    rtn.finalList.addAll(b.finalList);
-    
-    rtn.dm = DescriptorManager.plus(a.dm, b.dm);
-    
-    return rtn;
-  }
-  
-  public static ConstantPool concat(ConstantPool... pools) {
-    return Stream.of(pools)
-        .reduce(empty(), ConstantPool::plus);
   }
 
   public List<ClassInfo> getClasses() {

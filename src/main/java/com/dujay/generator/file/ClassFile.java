@@ -7,6 +7,7 @@ import java.io.IOException;
 
 import com.dujay.generator.bytes.ByteStreamWriter;
 import com.dujay.generator.constants.ConstantPool;
+import com.dujay.generator.constants.ConstantPoolBuilder;
 import com.dujay.generator.enums.AccessFlag;
 import com.dujay.generator.methods.MethodPool;
 
@@ -24,7 +25,7 @@ public class ClassFile extends File implements ByteStreamWriter {
   public ClassFile(String pathname, AccessFlag... flags) {
     super(pathname + ".class");
     stream = new ByteArrayOutputStream();
-    cpr = ConstantPool.empty();
+    cpr = new ConstantPool();
     mp = new MethodPool();
     this.accessFlags = AccessFlag.mask(flags);
   }
@@ -40,6 +41,10 @@ public class ClassFile extends File implements ByteStreamWriter {
 
   public MethodPool getMethodPool() {
     return mp;
+  }
+
+  public void setConstantPool(ConstantPool cpr) {
+    this.cpr = cpr;
   }
   
   public void writeMagicNumber() {
@@ -125,5 +130,9 @@ public class ClassFile extends File implements ByteStreamWriter {
         throw ex;
       }
     }
+  }
+
+  public ConstantPoolBuilder makeConstantPoolBuilder() {
+    return new ConstantPoolBuilder(this);
   }
 }
