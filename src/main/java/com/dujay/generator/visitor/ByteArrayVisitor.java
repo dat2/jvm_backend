@@ -1,7 +1,7 @@
 package com.dujay.generator.visitor;
 
 import java.io.ByteArrayOutputStream;
-import java.util.List;
+import java.util.Collection;
 
 import com.dujay.generator.attributes.CodeAttribute;
 import com.dujay.generator.bytes.ByteStreamWriter;
@@ -28,7 +28,7 @@ public class ByteArrayVisitor implements Visitor<ByteArrayOutputStream>, ByteStr
   }
 
   @Override
-  public ByteArrayOutputStream visit(List<? extends Element> es) {
+  public ByteArrayOutputStream visit(Collection<? extends Element> es) {
     for(Element e : es) {
       e.accept(this);
     }

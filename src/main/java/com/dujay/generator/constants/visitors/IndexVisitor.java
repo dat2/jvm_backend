@@ -1,6 +1,6 @@
 package com.dujay.generator.constants.visitors;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.stream.Stream;
 
 import org.slf4j.LoggerFactory;
@@ -29,7 +29,7 @@ public class IndexVisitor extends BaseVisitor<Stream<? extends ConstantInfo>> {
   }
 
   @Override
-  public Stream<? extends ConstantInfo> visit(List<? extends Element> ms) {
+  public Stream<? extends ConstantInfo> visit(Collection<? extends Element> ms) {
     return ms.stream().flatMap(c -> c.accept(this));
   }
 
@@ -76,12 +76,15 @@ public class IndexVisitor extends BaseVisitor<Stream<? extends ConstantInfo>> {
     Stream<ConstantInfo> firstConstants = Stream.of(thisClass, thisClassName,
         superClass, superClassName);
     
+    Stream.of(thisClass, thisClassName, superClass, superClassName)
+      .forEach(x -> logger.debug("Set index of: " + x.toString()));
+    
     return 
       Stream.concat(
           firstConstants,
           // concat all constant info lists, and then call accept on them all
           Stream.of(cp.getUtf8s(), cp.getStrings(), cp.getClasses(), cp.getNamesAndTypes(), cp.getMembers())
-          .flatMap(List::stream)
+          .flatMap(Collection::stream)
           .flatMap(x -> x.accept(this))
       );
   }

@@ -1,6 +1,6 @@
 package com.dujay.generator.visitor;
 
-import java.util.List;
+import java.util.Collection;
 
 import com.dujay.generator.attributes.CodeAttribute;
 import com.dujay.generator.constants.ConstantPool;
@@ -21,7 +21,7 @@ import com.dujay.generator.methods.MethodPool;
 public class BaseVisitor<T> implements Visitor<T> {
 
   @Override
-  public T visit(List<? extends Element> ms) {
+  public T visit(Collection<? extends Element> ms) {
     return null;
   }
 

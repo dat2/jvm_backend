@@ -3,7 +3,7 @@ package com.dujay.generator.constants.structures;
 import com.dujay.generator.enums.ConstantTag;
 import com.dujay.generator.visitor.Visitor;
 
-public class StringInfo extends ConstantInfo {
+public class StringInfo extends LiteralInfo {
   
   private Utf8Info utf8;
 

@@ -56,35 +56,5 @@ public class CodeAttribute extends Attribute implements ByteStreamWriter {
         "CodeAttribute [codeLength=%s bytes, maxStack=%s, maxLocals=%s, attributes=%s]", this.codeStream.size(), maxStack,
         maxLocals, attributes);
   }
-  
-  // bytecode finally!
-
-  public void ldc(int index) {
-    this.u1(0x12);
-    this.u1(index);
-  }
-  
-  public void aload_0() {
-    this.u1(0x2a);
-  }
-  
-  public void vreturn() {
-    this.u1(0xb1);
-  }
-  
-  public void getstatic(int index) {
-    this.u1(0xb2);
-    this.u2(index);
-  }
-
-  public void invokevirtual(int index) {
-    this.u1(0xb6);
-    this.u2(index);
-  }
-  
-  public void invokespecial(int index) {
-    this.u1(0xb7);
-    this.u2(index);
-  }
 
 }

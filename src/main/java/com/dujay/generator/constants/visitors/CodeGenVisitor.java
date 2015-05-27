@@ -1,7 +1,7 @@
 package com.dujay.generator.constants.visitors;
 
 import java.io.ByteArrayOutputStream;
-import java.util.List;
+import java.util.Collection;
 
 import org.slf4j.LoggerFactory;
 
@@ -18,7 +18,7 @@ import com.dujay.generator.visitor.ByteArrayVisitor;
 
 public class CodeGenVisitor extends ByteArrayVisitor {
 
-  private static final Logger logger = (Logger) LoggerFactory.getLogger("cpvisitor");
+  private static final Logger logger = (Logger) LoggerFactory.getLogger("cgvisitor");
 
   @Override
   public ByteArrayOutputStream visit(ClassInfo c) {
@@ -82,7 +82,7 @@ public class CodeGenVisitor extends ByteArrayVisitor {
   @Override
   public ByteArrayOutputStream visit(ConstantPool cp) {
     
-    List<ConstantInfo> constants = cp.getConstants();
+    Collection<ConstantInfo> constants = cp.getConstants();
 
     this.u2(constants.size() + 1);
     this.visit(constants);

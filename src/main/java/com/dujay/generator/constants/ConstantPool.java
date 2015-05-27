@@ -2,12 +2,18 @@ package com.dujay.generator.constants;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.dujay.generator.constants.structures.ClassInfo;
 import com.dujay.generator.constants.structures.ConstantInfo;
+import com.dujay.generator.constants.structures.LiteralInfo;
 import com.dujay.generator.constants.structures.MemberRefInfo;
 import com.dujay.generator.constants.structures.NameAndTypeInfo;
 import com.dujay.generator.constants.structures.StringInfo;
@@ -20,12 +26,18 @@ import com.dujay.generator.visitor.Visitor;
 
 public class ConstantPool implements Element, Generatable {
   
-  private List<ClassInfo> classes;
-  private List<MemberRefInfo> members;
-  private List<NameAndTypeInfo> namesAndTypes;
-  private List<Utf8Info> utf8s;
-  private List<StringInfo> strings;
+  private Set<ClassInfo> classes;
+  private Set<MemberRefInfo> members;
+  private Set<NameAndTypeInfo> namesAndTypes;
+  private Set<Utf8Info> utf8s;
+  private Set<StringInfo> strings;
   
+  private Map<String, NameAndTypeInfo> ntMap;
+  private Map<String, ClassInfo> classMap;
+  private Map<String, MemberRefInfo> memberMap;
+  private Map<String, LiteralInfo> literalMap;
+  
+  // we need the order
   private List<ConstantInfo> finalList;
   
   private ClassInfo thisClass;
@@ -37,34 +49,39 @@ public class ConstantPool implements Element, Generatable {
   private DescriptorManager dm;
   
   public ConstantPool() {
-    classes = new ArrayList<ClassInfo>();
-    members = new ArrayList<MemberRefInfo>();
-    namesAndTypes = new ArrayList<NameAndTypeInfo>();
-    utf8s = new ArrayList<Utf8Info>();
-    strings = new ArrayList<StringInfo>();
+    classes = new HashSet<ClassInfo>();
+    members = new HashSet<MemberRefInfo>();
+    namesAndTypes = new HashSet<NameAndTypeInfo>();
+    utf8s = new HashSet<Utf8Info>();
+    strings = new HashSet<StringInfo>();
     
     finalList = new ArrayList<ConstantInfo>();
     
     dm = DescriptorManager.empty();
+    
+    this.ntMap = new HashMap<String, NameAndTypeInfo>();
+    this.classMap = new HashMap<String, ClassInfo>();
+    this.memberMap = new HashMap<String, MemberRefInfo>();
+    this.literalMap = new HashMap<String, LiteralInfo>();
   }
 
-  public List<ClassInfo> getClasses() {
+  public Collection<ClassInfo> getClasses() {
     return classes;
   }
   
-  public List<MemberRefInfo> getMembers() {
+  public Collection<MemberRefInfo> getMembers() {
     return members;
   }
 
-  public List<NameAndTypeInfo> getNamesAndTypes() {
+  public Collection<NameAndTypeInfo> getNamesAndTypes() {
     return namesAndTypes;
   }
 
-  public List<Utf8Info> getUtf8s() {
+  public Collection<Utf8Info> getUtf8s() {
     return utf8s;
   }
 
-  public List<StringInfo> getStrings() {
+  public Collection<StringInfo> getStrings() {
     return strings;
   }
 
@@ -73,6 +90,7 @@ public class ConstantPool implements Element, Generatable {
   }
 
   public void setThisClass(ClassInfo thisClass) {
+    classMap.put("this", thisClass);
     this.thisClass = thisClass;
   }
 
@@ -81,7 +99,44 @@ public class ConstantPool implements Element, Generatable {
   }
 
   public void setSuperClass(ClassInfo superClass) {
+    classMap.put("super", thisClass);
     this.superClass = superClass;
+  }
+  
+  public void put(String key, NameAndTypeInfo value) {
+    ntMap.put(key, value);
+    this.add(value);
+  }
+  
+  public Optional<NameAndTypeInfo> getNameAndType(String nt) {
+    return Optional.ofNullable(ntMap.get(nt));
+  }
+
+  public void put(String key, ClassInfo value) {
+    classMap.put(key, value);
+    this.add(value);
+  }
+  
+  public Optional<LiteralInfo> getLiteral(String lit) {
+    return Optional.ofNullable(literalMap.get(lit));
+  }
+
+  public void put(String literalName, StringInfo s) {
+    literalMap.put(literalName, s);
+    this.add(s);
+  }
+  
+  public Optional<ClassInfo> getClassInfo(String ci) {
+    return Optional.ofNullable(classMap.get(ci));
+  }
+
+  public void put(String mName, MemberRefInfo member) {
+    memberMap.put(mName, member);
+    this.add(member);
+  }
+  
+  public Optional<MemberRefInfo> getMemberRefInfo(String mref) {
+    return Optional.ofNullable(memberMap.get(mref));
   }
 
   public void add(ClassInfo e) {
@@ -130,19 +185,6 @@ public class ConstantPool implements Element, Generatable {
         .findFirst();
   }
   
-  public Optional<ClassInfo> getClass(String className) {
-    return classes.stream()
-        .filter(x -> x.getName().getString().equals(className))
-        .findFirst();
-  }
-  
-  public Optional<MemberRefInfo> getMemberRef(ClassInfo classInfo, String memberName) {
-    return members.stream()
-        .filter(x -> x.getOwnerClass().getName().getString().equals(classInfo.getName().getString())
-            && x.getNameAndType().getName().getString().equals(memberName) )
-        .findFirst();
-  }
-  
   public Optional<StringInfo> getString(String utf8) {
     return strings.stream()
         .filter(x -> x.getUtf8().getString().equals(utf8))
@@ -180,8 +222,9 @@ public class ConstantPool implements Element, Generatable {
         .collect(Collectors.toList());
   }
   
-  public List<ConstantInfo> getConstants() {
+  public Collection<ConstantInfo> getConstants() {
     return finalList;
   }
+
 
 }

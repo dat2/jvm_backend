@@ -1,7 +1,8 @@
 package com.dujay.generator.constants;
 
-import java.util.HashMap;
-import java.util.Map;
+import org.slf4j.LoggerFactory;
+
+import ch.qos.logback.classic.Logger;
 
 import com.dujay.generator.constants.structures.ClassInfo;
 import com.dujay.generator.constants.structures.MemberRefInfo;
@@ -11,26 +12,90 @@ import com.dujay.generator.constants.structures.Utf8Info;
 import com.dujay.generator.file.ClassFile;
 
 public class ConstantPoolBuilder {
+  
+  private Logger logger = (Logger) LoggerFactory.getLogger("cpbuilder");
+  
   private ClassFile owner;
   private ConstantPool cpr;
-  
-  private Map<String, NameAndTypeInfo> ntMap;
-  private Map<String, ClassInfo> classMap;
   
   public ConstantPoolBuilder(ClassFile cls) {
     this.owner = cls;
     this.cpr = new ConstantPool();
-    this.ntMap = new HashMap<String, NameAndTypeInfo>();
-    this.classMap = new HashMap<String, ClassInfo>();
   }
   
-  public ConstantPoolBuilder literal(String string) {
-    cpr.add(new StringInfo(string));
+  private ClassInfo makeClass(String ciName, Class<?> clazz) {
+    ClassInfo ci = new ClassInfo(clazz);
+    cpr.put(ciName, ci);
+    logger.debug("Adding class: " + ci.toString());
+    
+    return ci;
+  }
+  
+  private ClassInfo makeClass(String ciName, String clazz) {
+    ClassInfo ci = new ClassInfo(clazz);
+    cpr.put(ciName, ci);
+    logger.debug("Adding class: " + ci.toString());
+    
+    return ci;
+  }
+  
+  public ConstantPoolBuilder cClass(String ciName, Class<?> clazz) {
+    cpr.add(makeClass(ciName, clazz));
+    return this;
+  }
+  
+  public ConstantPoolBuilder cClass(String ciName, String clazz) {
+    cpr.add(makeClass(ciName, clazz));
+    return this;
+  }
+
+  public ConstantPoolBuilder thisClass(String clazz) {
+    cpr.setThisClass(new ClassInfo(clazz));
+    return this;
+  }
+
+
+  public ConstantPoolBuilder thisClass(Class<?> clazz) {
+    cpr.setThisClass(new ClassInfo(clazz));
+    return this;
+  }
+  
+
+  public ConstantPoolBuilder superClass(String clazz) {
+    cpr.setSuperClass(new ClassInfo(clazz));
+    return this;
+  }
+
+
+  public ConstantPoolBuilder superClass(Class<?> clazz) {
+    cpr.setSuperClass(new ClassInfo(clazz));
+    return this;
+  }
+  
+  public ClassInfo getThisClass() {
+    return cpr.getClassInfo("this").get();
+  }
+  
+  public ClassInfo getSuperClass() {
+    return cpr.getClassInfo("super").get();
+  }
+  
+  public ConstantPoolBuilder literal(String literalName, String literalValue) {
+    StringInfo s = new StringInfo(literalValue);
+    cpr.put(literalName, s);
+    logger.debug("Adding String Literal: " + s.toString());
     return this;
   }
   
   public ConstantPoolBuilder utf8(String utf8) {
-    cpr.add(new Utf8Info(utf8));
+    Utf8Info uUtf = new Utf8Info(utf8);
+    cpr.add(uUtf);
+    logger.debug("Adding Utf8: " + uUtf.toString());
+    return this;
+  }
+  
+  public ConstantPoolBuilder attribute(String aName) {
+    this.utf8(aName);
     return this;
   }
 
@@ -40,100 +105,32 @@ public class ConstantPoolBuilder {
   }
   
   public ConstantPoolBuilder nameAndType(String ntName, String name, String type) {
-    Utf8Info uName = new Utf8Info(name);
-    Utf8Info uType = cpr.addDescriptor(name, type);
-    NameAndTypeInfo nt = new NameAndTypeInfo(uName, uType);
-    this.ntMap.put(ntName, nt);
-    
-    cpr.add(uName);
-    cpr.add(uType);
-    cpr.add(nt);
-    
-    return this;
-  }
+    NameAndTypeInfo nt = new NameAndTypeInfo(new Utf8Info(name), cpr.addDescriptor(name, type));
+    cpr.put(ntName, nt);
 
-  private ClassInfo makeClass(String ciName, Class<?> clazz) {
-    ClassInfo ci = new ClassInfo(clazz);
-    this.classMap.put(ciName, ci);
-    
-    return ci;
-  }
-  
-  private ClassInfo makeClass(String ciName, String clazz) {
-    ClassInfo ci = new ClassInfo(clazz);
-    this.classMap.put(ciName, ci);
-    
-    return ci;
-  }
-  
-  public ConstantPoolBuilder cClass(String ciName, Class<?> clazz) {
-    
-    cpr.add(makeClass(ciName, clazz));
-  
-    return this;
-  }
-  
-  public ConstantPoolBuilder cClass(String ciName, String clazz) {
-    
-    cpr.add(makeClass(ciName, clazz));
-    
-    return this;
-  }
-
-  public ConstantPoolBuilder thisClass(String clazz) {
-    
-    cpr.setThisClass(makeClass("this", clazz));
-    
-    return this;
-  }
-
-
-  public ConstantPoolBuilder thisClass(Class<?> clazz) {
-    
-    cpr.setThisClass(makeClass("this", clazz));
+    logger.debug("Adding NameAndType: " + nt.toString());
     
     return this;
   }
   
-
-  public ConstantPoolBuilder superClass(String clazz) {
-    
-    cpr.setThisClass(makeClass("super", clazz));
-    
-    return this;
-  }
-
-
-  public ConstantPoolBuilder superClass(Class<?> clazz) {
-    
-    cpr.setSuperClass(makeClass("super", clazz));
-    
-    return this;
-  }
-  
-  public ClassInfo getThisClass() {
-    return this.classMap.get("this");
-  }
-  
-  public ClassInfo getSuperClass() {
-    return this.classMap.get("this");
-  }
-  
-  private ConstantPoolBuilder memberRef(MemberRefInfo.MemberRefType type, String ciName, String ntName) {
+  private ConstantPoolBuilder makeMemberRef(MemberRefInfo.MemberRefType type, String mName, String ciName, String ntName) {
     MemberRefInfo member = new MemberRefInfo(
-        type, classMap.get(ciName), ntMap.get(ntName));
+        type, cpr.getClassInfo(ciName).get(), cpr.getNameAndType(ntName).get());
+    logger.debug("Adding Member: " + member.toString());
     
-    cpr.add(member);
+    cpr.put(mName, member);
     
     return this;
   }
 
-  public ConstantPoolBuilder method(String ciName, String ntName) {
-    return memberRef(MemberRefInfo.MemberRefType.MethodRef, ciName, ntName);
+  public ConstantPoolBuilder method(String mName, String ciName, String ntName) {
+    logger.debug("Adding Method: " + mName);
+    return makeMemberRef(MemberRefInfo.MemberRefType.MethodRef, mName, ciName, ntName);
   }
 
-  public ConstantPoolBuilder field(String ciName, String ntName) {
-    return memberRef(MemberRefInfo.MemberRefType.FieldRef, ciName, ntName);
+  public ConstantPoolBuilder field(String mName, String ciName, String ntName) {
+    logger.debug("Adding Field: " + mName);
+    return makeMemberRef(MemberRefInfo.MemberRefType.FieldRef, mName, ciName, ntName);
   }
 
   public ConstantPoolBuilder index() {
@@ -146,4 +143,5 @@ public class ConstantPoolBuilder {
     
     return cpr;
   }
+
 }

@@ -1,6 +1,6 @@
 package com.dujay.generator.visitor;
 
-import java.util.List;
+import java.util.Collection;
 
 import com.dujay.generator.attributes.CodeAttribute;
 import com.dujay.generator.constants.ConstantPool;
@@ -14,7 +14,7 @@ import com.dujay.generator.methods.MethodPool;
 
 public interface Visitor<T> {
 
-  public T visit(List<? extends Element> ms);
+  public T visit(Collection<? extends Element> ms);
   
   // constant structures
   public T visit(ClassInfo c);

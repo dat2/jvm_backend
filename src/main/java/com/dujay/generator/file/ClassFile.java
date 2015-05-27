@@ -10,6 +10,7 @@ import com.dujay.generator.constants.ConstantPool;
 import com.dujay.generator.constants.ConstantPoolBuilder;
 import com.dujay.generator.enums.AccessFlag;
 import com.dujay.generator.methods.MethodPool;
+import com.dujay.generator.methods.builders.MethodPoolBuilder;
 
 public class ClassFile extends File implements ByteStreamWriter {
   private static final long serialVersionUID = 4178467766913681654L;
@@ -45,6 +46,10 @@ public class ClassFile extends File implements ByteStreamWriter {
 
   public void setConstantPool(ConstantPool cpr) {
     this.cpr = cpr;
+  }
+
+  public void setMethodPool(MethodPool mp) {
+    this.mp = mp;
   }
   
   public void writeMagicNumber() {
@@ -134,5 +139,9 @@ public class ClassFile extends File implements ByteStreamWriter {
 
   public ConstantPoolBuilder makeConstantPoolBuilder() {
     return new ConstantPoolBuilder(this);
+  }
+
+  public MethodPoolBuilder makeMethodPoolBuilder() {
+    return new MethodPoolBuilder(this);
   }
 }
