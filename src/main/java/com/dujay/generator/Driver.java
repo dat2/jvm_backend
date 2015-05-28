@@ -39,6 +39,7 @@ public class Driver {
       // main method constants
       .literal("hw", "Hello World")
       .literal("hw2", "Hello World, Again!")
+      .literal("hw3", "Hello World, Again2!")
       .cClass("System", System.class)
       .nameAndType("outNT", "out", Descriptor.fieldDescriptor(PrintStream.class))
       .field("System.out", "System", "outNT")
@@ -80,6 +81,10 @@ public class Driver {
           // System.out.println("Hello World, Again!");
           .getstatic("System.out")
           .ldc("hw2")
+          .invokevirtual("PrintStream.println")
+          // System.out.println("Hello World, Again 2!");
+          .getstatic("System.out")
+          .ldc("hw3")
           .invokevirtual("PrintStream.println")
           .vreturn()
         .endCode()
