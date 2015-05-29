@@ -1,5 +1,5 @@
 # Usage
-Check out [An example usage here](src/main/java/com/dujay/generator/Driver.java).
+Check out [An example usage here](jvm_backend/src/main/java/com/dujay/generator/Driver.java).
 
 # Design
 The API is designed to be fluid so that you don't need to maintain a huge set of objects just to write a simple class file.
