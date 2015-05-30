@@ -1,10 +1,11 @@
 package com.dujay.jvm.visitor;
 
-import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import com.dujay.jvm.attributes.CodeAttribute;
-import com.dujay.jvm.bytes.ByteStreamWriter;
+import com.dujay.jvm.bytes.ByteList;
 import com.dujay.jvm.constants.ConstantPool;
 import com.dujay.jvm.constants.structures.ClassInfo;
 import com.dujay.jvm.constants.structures.MemberRefInfo;
@@ -14,69 +15,69 @@ import com.dujay.jvm.constants.structures.Utf8Info;
 import com.dujay.jvm.methods.MethodInfo;
 import com.dujay.jvm.methods.MethodPool;
 
-public class ByteArrayVisitor implements Visitor<ByteArrayOutputStream>, ByteStreamWriter {
+public class ByteArrayVisitor implements Visitor<List<Byte>>, ByteList {
   
-  private ByteArrayOutputStream stream;
+  private List<Byte> stream;
   
   public ByteArrayVisitor() {
-    stream = new ByteArrayOutputStream();
+    stream = new ArrayList<Byte>();
   }
 
   @Override
-  public ByteArrayOutputStream getStream() {
+  public List<Byte> getBytes() {
     return stream;
   }
 
   @Override
-  public ByteArrayOutputStream visit(Collection<? extends Element> es) {
+  public List<Byte> visit(Collection<? extends Element> es) {
     for(Element e : es) {
       e.accept(this);
     }
-    return getStream();
+    return getBytes();
   }
   
   @Override
-  public ByteArrayOutputStream visit(ClassInfo c) {
-    return getStream();
+  public List<Byte> visit(ClassInfo c) {
+    return getBytes();
   }
 
   @Override
-  public ByteArrayOutputStream visit(NameAndTypeInfo nt) {
-    return getStream();
+  public List<Byte> visit(NameAndTypeInfo nt) {
+    return getBytes();
   }
 
   @Override
-  public ByteArrayOutputStream visit(MemberRefInfo m) {
-    return getStream();
+  public List<Byte> visit(MemberRefInfo m) {
+    return getBytes();
   }
 
   @Override
-  public ByteArrayOutputStream visit(Utf8Info u) {
-    return getStream();
+  public List<Byte> visit(Utf8Info u) {
+    return getBytes();
   }
 
   @Override
-  public ByteArrayOutputStream visit(StringInfo i) {
-    return getStream();
+  public List<Byte> visit(StringInfo i) {
+    return getBytes();
   }
 
   @Override
-  public ByteArrayOutputStream visit(ConstantPool cp) {
-    return getStream();
+  public List<Byte> visit(ConstantPool cp) {
+    return getBytes();
   }
 
   @Override
-  public ByteArrayOutputStream visit(MethodInfo mi) {
-    return getStream();
+  public List<Byte> visit(MethodInfo mi) {
+    return getBytes();
   }
 
   @Override
-  public ByteArrayOutputStream visit(MethodPool mp) {
-    return getStream();
+  public List<Byte> visit(MethodPool mp) {
+    return getBytes();
   }
 
   @Override
-  public ByteArrayOutputStream visit(CodeAttribute ca) {
-    return getStream();
+  public List<Byte> visit(CodeAttribute ca) {
+    return getBytes();
   }
 }

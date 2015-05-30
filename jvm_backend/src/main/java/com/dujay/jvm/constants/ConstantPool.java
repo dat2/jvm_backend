@@ -1,6 +1,5 @@
 package com.dujay.jvm.constants;
 
-import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -212,7 +211,7 @@ public class ConstantPool implements Element, Generatable {
     return dm.get(name);
   }
 
-  public ByteArrayOutputStream generate() {
+  public List<Byte> generate() {
     return this.accept(new CodeGenVisitor());
   }
   

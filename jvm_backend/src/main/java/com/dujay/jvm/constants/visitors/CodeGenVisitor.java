@@ -1,7 +1,7 @@
 package com.dujay.jvm.constants.visitors;
 
-import java.io.ByteArrayOutputStream;
 import java.util.Collection;
+import java.util.List;
 
 import org.slf4j.LoggerFactory;
 
@@ -21,7 +21,7 @@ public class CodeGenVisitor extends ByteArrayVisitor {
   private static final Logger logger = (Logger) LoggerFactory.getLogger("cgvisitor");
 
   @Override
-  public ByteArrayOutputStream visit(ClassInfo c) {
+  public List<Byte> visit(ClassInfo c) {
     logger.debug(c.toString());
 
     // write the class structure
@@ -32,7 +32,7 @@ public class CodeGenVisitor extends ByteArrayVisitor {
   }
 
   @Override
-  public ByteArrayOutputStream visit(NameAndTypeInfo nt) {
+  public List<Byte> visit(NameAndTypeInfo nt) {
     logger.debug(nt.toString());
 
     // write the name and type
@@ -44,7 +44,7 @@ public class CodeGenVisitor extends ByteArrayVisitor {
   }
 
   @Override
-  public ByteArrayOutputStream visit(MemberRefInfo m) {
+  public List<Byte> visit(MemberRefInfo m) {
     logger.debug(m.toString());
 
     // write the member ref structure
@@ -56,7 +56,7 @@ public class CodeGenVisitor extends ByteArrayVisitor {
   }
 
   @Override
-  public ByteArrayOutputStream visit(Utf8Info u) {
+  public List<Byte> visit(Utf8Info u) {
     logger.debug(u.toString());
 
     // write the utf8 structure
@@ -70,7 +70,7 @@ public class CodeGenVisitor extends ByteArrayVisitor {
   }
 
   @Override
-  public ByteArrayOutputStream visit(StringInfo i) {
+  public List<Byte> visit(StringInfo i) {
     logger.debug(i.toString());
 
     u1(i.tag());
@@ -80,7 +80,7 @@ public class CodeGenVisitor extends ByteArrayVisitor {
   }
 
   @Override
-  public ByteArrayOutputStream visit(ConstantPool cp) {
+  public List<Byte> visit(ConstantPool cp) {
     
     Collection<ConstantInfo> constants = cp.getConstants();
 

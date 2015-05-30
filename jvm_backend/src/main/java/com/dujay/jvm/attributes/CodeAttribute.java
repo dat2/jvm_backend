@@ -1,16 +1,15 @@
 package com.dujay.jvm.attributes;
 
-import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.dujay.jvm.bytes.ByteStreamWriter;
+import com.dujay.jvm.bytes.ByteList;
 import com.dujay.jvm.constants.ConstantPool;
 import com.dujay.jvm.visitor.Visitor;
 
-public class CodeAttribute extends Attribute implements ByteStreamWriter {
+public class CodeAttribute extends Attribute implements ByteList {
   
-  private ByteArrayOutputStream codeStream;
+  private List<Byte> bytes;
   
   private int maxStack;
   private int maxLocals;
@@ -22,15 +21,10 @@ public class CodeAttribute extends Attribute implements ByteStreamWriter {
 
   public CodeAttribute(ConstantPool cpr, int maxStack, int maxLocals) {
     super(cpr.getUtf8("Code").get());
+    this.bytes = new ArrayList<Byte>();
     this.maxStack = maxStack;
     this.maxLocals = maxLocals;
-    this.codeStream = new ByteArrayOutputStream();
     this.attributes = new ArrayList<Attribute>();
-  }
-
-  @Override
-  public ByteArrayOutputStream getStream() {
-    return codeStream;
   }
 
   public List<Attribute> getAttributes() {
@@ -53,8 +47,16 @@ public class CodeAttribute extends Attribute implements ByteStreamWriter {
   @Override
   public String toString() {
     return String.format(
-        "CodeAttribute [codeLength=%s bytes, maxStack=%s, maxLocals=%s, attributes=%s]", this.codeStream.size(), maxStack,
+        "CodeAttribute [code=%s, maxStack=%s, maxLocals=%s, attributes=%s]", getBytes(), maxStack,
         maxLocals, attributes);
   }
 
+  public Integer getCurrentInstructionIndex() {
+    return getBytes().size() - 1;
+  }
+
+  @Override
+  public List<Byte> getBytes() {
+    return bytes;
+  }
 }

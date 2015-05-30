@@ -1,7 +1,6 @@
 package com.dujay.jvm.methods;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import java.util.List;
 
 import org.slf4j.LoggerFactory;
 
@@ -15,7 +14,7 @@ public class CodeGenVisitor extends ByteArrayVisitor {
   private static final Logger logger = (Logger) LoggerFactory.getLogger("mpvisitor");
 
   @Override
-  public ByteArrayOutputStream visit(MethodInfo mi) {
+  public List<Byte> visit(MethodInfo mi) {
     
     logger.debug(mi.toString());
     
@@ -33,11 +32,11 @@ public class CodeGenVisitor extends ByteArrayVisitor {
   }
 
   @Override
-  public ByteArrayOutputStream visit(CodeAttribute ca) {
+  public List<Byte> visit(CodeAttribute ca) {
     
     logger.debug(ca.toString());
     
-    int codeLength = ca.getStream().size();
+    int codeLength = ca.getBytes().size();
     int exceptionsLength = 0;
     int attributesLength = ca.getAttributes().size();
     int fullLength = 2+2+4+codeLength+2+exceptionsLength+2+attributesLength;
@@ -50,13 +49,7 @@ public class CodeGenVisitor extends ByteArrayVisitor {
     this.u4(codeLength);
 
     logger.debug("bytecode");
-    try {
-      logger.debug("size before: " + getStream().size());
-      ca.getStream().writeTo(getStream());
-      logger.debug("size after: " + getStream().size());
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
+    getBytes().addAll(ca.getBytes());
 
     // TODO exceptions
     logger.debug("exceptions");
@@ -67,11 +60,11 @@ public class CodeGenVisitor extends ByteArrayVisitor {
     this.u2(attributesLength);
     this.visit(ca.getAttributes());
     
-    return getStream();
+    return getBytes();
   }
 
   @Override
-  public ByteArrayOutputStream visit(MethodPool mp) {
+  public List<Byte> visit(MethodPool mp) {
     
     logger.debug("method pool");
     this.u2(mp.length());

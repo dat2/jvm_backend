@@ -1,6 +1,5 @@
 package com.dujay.jvm.methods;
 
-import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,7 +37,7 @@ public class MethodPool implements Element, Generatable {
     return String.format("MethodPool [methods=%s]", methods);
   }
 
-  public ByteArrayOutputStream generate() {
+  public List<Byte> generate() {
     return this.accept(new CodeGenVisitor());
   }
 

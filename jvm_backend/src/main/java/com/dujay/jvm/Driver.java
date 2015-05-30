@@ -65,6 +65,7 @@ public class Driver {
           .aload_0()
           .invokespecial("Object.<init>")
           .vreturn()
+          .patch()
         .endCode()
         
       .endMethod()
@@ -87,6 +88,7 @@ public class Driver {
           .ldc("hw3")
           .invokevirtual("PrintStream.println")
           .vreturn()
+          .patch()
         .endCode()
         
       .endMethod()

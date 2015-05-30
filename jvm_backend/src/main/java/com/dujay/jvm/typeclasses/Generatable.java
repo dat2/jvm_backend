@@ -1,7 +1,7 @@
 package com.dujay.jvm.typeclasses;
 
-import java.io.ByteArrayOutputStream;
+import java.util.List;
 
 public interface Generatable {
-  public ByteArrayOutputStream generate();
+  public List<Byte> generate();
 }

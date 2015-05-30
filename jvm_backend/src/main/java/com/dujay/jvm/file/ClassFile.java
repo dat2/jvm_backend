@@ -1,21 +1,22 @@
 package com.dujay.jvm.file;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
-import com.dujay.jvm.bytes.ByteStreamWriter;
+import com.dujay.jvm.bytes.ByteList;
 import com.dujay.jvm.constants.ConstantPool;
 import com.dujay.jvm.constants.ConstantPoolBuilder;
 import com.dujay.jvm.constants.enums.AccessFlag;
 import com.dujay.jvm.methods.MethodPool;
 import com.dujay.jvm.methods.builders.MethodPoolBuilder;
 
-public class ClassFile extends File implements ByteStreamWriter {
+public class ClassFile extends File implements ByteList {
   private static final long serialVersionUID = 4178467766913681654L;
   
-  private ByteArrayOutputStream stream;
+  private List<Byte> stream;
   private ConstantPool cpr;
   private MethodPool mp;
   private int accessFlags;
@@ -25,14 +26,14 @@ public class ClassFile extends File implements ByteStreamWriter {
 
   public ClassFile(String pathname, AccessFlag... flags) {
     super(pathname + ".class");
-    stream = new ByteArrayOutputStream();
+    stream = new ArrayList<Byte>();
     cpr = new ConstantPool();
     mp = new MethodPool();
     this.accessFlags = AccessFlag.mask(flags);
   }
 
   @Override
-  public ByteArrayOutputStream getStream() {
+  public List<Byte> getBytes() {
     return stream;
   }
   
@@ -62,8 +63,7 @@ public class ClassFile extends File implements ByteStreamWriter {
   }
   
   public void writeConstantPool() throws IOException {
-    ByteArrayOutputStream out = cpr.generate();
-    out.writeTo(getStream());
+    this.append(cpr.generate());
   }
   
   public void writeAccessFlags() {
@@ -87,8 +87,7 @@ public class ClassFile extends File implements ByteStreamWriter {
   }
   
   public void writeMethods() throws IOException {
-    ByteArrayOutputStream out = mp.generate();
-    out.writeTo(getStream());
+    this.append(mp.generate());
   }
   
   public void writeAttributes() {
@@ -125,7 +124,7 @@ public class ClassFile extends File implements ByteStreamWriter {
     IOException ex = null;
     FileOutputStream file = new FileOutputStream(this);
     try {
-      getStream().writeTo(file);
+      this.writeTo(file);
     } catch(IOException e) {
       ex = e;
     } finally {
