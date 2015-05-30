@@ -21,7 +21,7 @@ public class MethodInfoBuilder {
     this.cpr = cpr;
   }
   
-  public MethodInfoBuilder define(String ntName, int maxStack, int maxLocals, AccessFlag... flags) {
+  public MethodInfoBuilder signature(String ntName, int maxStack, int maxLocals, AccessFlag... flags) {
     NameAndTypeInfo nt = cpr.getNameAndType(ntName).get();
     mi = new MethodInfo(nt.getName(), nt.getType(), flags);
     cab = new CodeAttributeBuilder(this, mi, cpr, maxStack, maxLocals);

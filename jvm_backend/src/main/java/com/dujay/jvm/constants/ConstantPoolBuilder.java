@@ -21,6 +21,7 @@ public class ConstantPoolBuilder {
   public ConstantPoolBuilder(ClassFile cls) {
     this.owner = cls;
     this.cpr = new ConstantPool();
+    this.owner.setConstantPool(this.cpr);
   }
   
   private ClassInfo makeClass(String ciName, Class<?> clazz) {
@@ -39,7 +40,7 @@ public class ConstantPoolBuilder {
     return ci;
   }
   
-  public ConstantPoolBuilder cClass(String ciName, Class<?> clazz) {
+  public ConstantPoolBuilder clazz(String ciName, Class<?> clazz) {
     cpr.add(makeClass(ciName, clazz));
     return this;
   }
@@ -139,8 +140,6 @@ public class ConstantPoolBuilder {
   }
 
   public ConstantPool build() {
-    this.owner.setConstantPool(this.cpr);
-    
     return cpr;
   }
 
