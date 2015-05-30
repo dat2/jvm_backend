@@ -12,9 +12,9 @@ public class Descriptor {
     }
     // primitive classes
     if(c.isPrimitive()) {
-      if(c == Long.class) {
+      if(c == long.class || c == Long.class) {
         return "J";
-      } else if(c == Boolean.class) {
+      } else if(c == boolean.class || c == Boolean.class) {
         return "Z";
       }
       // even though the first character is uppercase, we want to make sure

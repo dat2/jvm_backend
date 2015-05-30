@@ -2,6 +2,7 @@ package com.dujay.jvm.constants.visitors;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Consumer;
 
 import org.slf4j.LoggerFactory;
 
@@ -12,8 +13,9 @@ import com.dujay.jvm.constants.structures.ClassInfo;
 import com.dujay.jvm.constants.structures.ConstantInfo;
 import com.dujay.jvm.constants.structures.MemberRefInfo;
 import com.dujay.jvm.constants.structures.NameAndTypeInfo;
-import com.dujay.jvm.constants.structures.StringInfo;
 import com.dujay.jvm.constants.structures.Utf8Info;
+import com.dujay.jvm.constants.structures.literals.LiteralInfo;
+import com.dujay.jvm.constants.structures.literals.LongLiteralInfo;
 import com.dujay.jvm.visitor.ByteArrayVisitor;
 
 public class CodeGenVisitor extends ByteArrayVisitor {
@@ -70,11 +72,37 @@ public class CodeGenVisitor extends ByteArrayVisitor {
   }
 
   @Override
-  public List<Byte> visit(StringInfo i) {
+  public List<Byte> visit(LiteralInfo i) {
     logger.debug(i.toString());
 
-    u1(i.tag());
-    u2(i.getUtf8().getIndex());
+    
+    Consumer<Integer> c;
+    switch(i.numBytes()) {
+    case 1:
+      c = this::u1;
+      break;
+    case 2:
+      c = this::u2;
+      break;
+    case 4:
+      c = this::u4;
+      break;
+    default:
+        c = (x) -> {};
+    }
+    
+    if(i instanceof LongLiteralInfo) {
+      LongLiteralInfo lv = (LongLiteralInfo) i;
+
+      // it takes two entries?
+      u1(i.tag());
+      u4(lv.bytes());
+      u4(lv.lowBytes());
+      
+    } else {
+      u1(i.tag());
+      c.accept(i.bytes());
+    }
 
     return super.visit(i);
   }

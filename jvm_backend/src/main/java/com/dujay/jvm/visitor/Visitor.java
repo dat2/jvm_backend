@@ -7,8 +7,9 @@ import com.dujay.jvm.constants.ConstantPool;
 import com.dujay.jvm.constants.structures.ClassInfo;
 import com.dujay.jvm.constants.structures.MemberRefInfo;
 import com.dujay.jvm.constants.structures.NameAndTypeInfo;
-import com.dujay.jvm.constants.structures.StringInfo;
 import com.dujay.jvm.constants.structures.Utf8Info;
+import com.dujay.jvm.constants.structures.literals.LiteralInfo;
+import com.dujay.jvm.constants.structures.literals.LongLiteralInfo;
 import com.dujay.jvm.methods.MethodInfo;
 import com.dujay.jvm.methods.MethodPool;
 
@@ -19,9 +20,8 @@ public interface Visitor<T> {
   // constant structures
   public T visit(ClassInfo c);
   public T visit(MemberRefInfo m);
-  public T visit(StringInfo i);
-//  public T visit(NumberInfo n);
-//  public T visit(LongNumberInfo ln);
+  public T visit(LiteralInfo i);
+  public T visit(LongLiteralInfo i);
   public T visit(NameAndTypeInfo nt);
   public T visit(Utf8Info u);
 //  public T visit(MethodHandleInfo mh);

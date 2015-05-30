@@ -7,8 +7,11 @@ import ch.qos.logback.classic.Logger;
 import com.dujay.jvm.constants.structures.ClassInfo;
 import com.dujay.jvm.constants.structures.MemberRefInfo;
 import com.dujay.jvm.constants.structures.NameAndTypeInfo;
-import com.dujay.jvm.constants.structures.StringInfo;
 import com.dujay.jvm.constants.structures.Utf8Info;
+import com.dujay.jvm.constants.structures.literals.NumberInfo;
+import com.dujay.jvm.constants.structures.literals.LiteralInfo;
+import com.dujay.jvm.constants.structures.literals.LongNumberInfo;
+import com.dujay.jvm.constants.structures.literals.StringInfo;
 import com.dujay.jvm.file.ClassFile;
 
 public class ConstantPoolBuilder {
@@ -45,7 +48,7 @@ public class ConstantPoolBuilder {
     return this;
   }
   
-  public ConstantPoolBuilder cClass(String ciName, String clazz) {
+  public ConstantPoolBuilder clazz(String ciName, String clazz) {
     cpr.add(makeClass(ciName, clazz));
     return this;
   }
@@ -81,11 +84,30 @@ public class ConstantPoolBuilder {
     return cpr.getClassInfo("super").get();
   }
   
-  public ConstantPoolBuilder literal(String literalName, String literalValue) {
-    StringInfo s = new StringInfo(literalValue);
-    cpr.put(literalName, s);
-    logger.debug("Adding String Literal: " + s.toString());
+  private ConstantPoolBuilder literal(String key, LiteralInfo value, String type) {
+    cpr.put(key, value);
+    logger.debug("Adding " + type + " literal: " + value.toString());
     return this;
+  }
+  
+  public ConstantPoolBuilder literal(String key, String value) {
+    return literal(key, new StringInfo(value), "String");
+  }
+  
+  public ConstantPoolBuilder literal(String key, int value) {
+    return literal(key, new NumberInfo(value), "Integer");
+  }
+
+  public ConstantPoolBuilder literal(String key, float value) {
+    return literal(key, new NumberInfo(value), "Float");
+  }
+
+  public ConstantPoolBuilder literal(String key, long value) {
+    return literal(key, new LongNumberInfo(value), "Long");
+  }
+  
+  public ConstantPoolBuilder literal(String key, double value) {
+    return literal(key, new LongNumberInfo(value), "Double");
   }
   
   public ConstantPoolBuilder utf8(String utf8) {

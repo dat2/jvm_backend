@@ -10,8 +10,9 @@ import com.dujay.jvm.constants.ConstantPool;
 import com.dujay.jvm.constants.structures.ClassInfo;
 import com.dujay.jvm.constants.structures.MemberRefInfo;
 import com.dujay.jvm.constants.structures.NameAndTypeInfo;
-import com.dujay.jvm.constants.structures.StringInfo;
 import com.dujay.jvm.constants.structures.Utf8Info;
+import com.dujay.jvm.constants.structures.literals.LiteralInfo;
+import com.dujay.jvm.constants.structures.literals.LongLiteralInfo;
 import com.dujay.jvm.methods.MethodInfo;
 import com.dujay.jvm.methods.MethodPool;
 
@@ -31,6 +32,11 @@ public class ByteArrayVisitor implements Visitor<List<Byte>>, ByteList {
   @Override
   public List<Byte> visit(Collection<? extends Element> es) {
     for(Element e : es) {
+      
+      // This gets longs / doubles working properly
+      if(e == null) {
+        continue;
+      }
       e.accept(this);
     }
     return getBytes();
@@ -57,7 +63,12 @@ public class ByteArrayVisitor implements Visitor<List<Byte>>, ByteList {
   }
 
   @Override
-  public List<Byte> visit(StringInfo i) {
+  public List<Byte> visit(LiteralInfo i) {
+    return getBytes();
+  }
+
+  @Override
+  public List<Byte> visit(LongLiteralInfo i) {
     return getBytes();
   }
 

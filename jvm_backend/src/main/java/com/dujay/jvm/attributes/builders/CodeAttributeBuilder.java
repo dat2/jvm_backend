@@ -11,8 +11,8 @@ import ch.qos.logback.classic.Logger;
 import com.dujay.jvm.attributes.CodeAttribute;
 import com.dujay.jvm.constants.ConstantPool;
 import com.dujay.jvm.constants.structures.ConstantInfo;
-import com.dujay.jvm.constants.structures.LiteralInfo;
 import com.dujay.jvm.constants.structures.MemberRefInfo;
+import com.dujay.jvm.constants.structures.literals.LiteralInfo;
 import com.dujay.jvm.methods.MethodInfo;
 import com.dujay.jvm.methods.builders.MethodInfoBuilder;
 
@@ -60,7 +60,16 @@ public class CodeAttributeBuilder {
     LiteralInfo info = cpr.getLiteral(lit).get();
     ca.u1(0x12);
     ca.u1(0);
-    this.addPatchAddress(info, ca.getCurrentInstructionIndex(), ca::u1);
+    this.addPatchAddress(info, ca.currentIndex(), ca::u1);
+    return this;
+  }
+
+  public CodeAttributeBuilder ldc2_w(String lit) {
+    logger.debug("ldc2_w");
+    LiteralInfo info = cpr.getLiteral(lit).get();
+    ca.u1(0x14);
+    ca.u2(0);
+    this.addPatchAddress(info, ca.currentIndex() - 1, ca::u2);
     return this;
   }
   
@@ -80,7 +89,7 @@ public class CodeAttributeBuilder {
     logger.debug("writeMemberIndex");
     MemberRefInfo mr = cpr.getMemberRefInfo(memberName).get();
     ca.u2(0);
-    this.addPatchAddress(mr, ca.getCurrentInstructionIndex() - 1, ca::u2);
+    this.addPatchAddress(mr, ca.currentIndex() - 1, ca::u2);
     
     return this;
   }

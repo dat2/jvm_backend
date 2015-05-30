@@ -51,7 +51,7 @@ public class CodeAttribute extends Attribute implements ByteList {
         maxLocals, attributes);
   }
 
-  public Integer getCurrentInstructionIndex() {
+  public Integer currentIndex() {
     return getBytes().size() - 1;
   }
 

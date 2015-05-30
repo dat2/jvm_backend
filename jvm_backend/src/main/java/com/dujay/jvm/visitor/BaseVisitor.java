@@ -7,8 +7,9 @@ import com.dujay.jvm.constants.ConstantPool;
 import com.dujay.jvm.constants.structures.ClassInfo;
 import com.dujay.jvm.constants.structures.MemberRefInfo;
 import com.dujay.jvm.constants.structures.NameAndTypeInfo;
-import com.dujay.jvm.constants.structures.StringInfo;
 import com.dujay.jvm.constants.structures.Utf8Info;
+import com.dujay.jvm.constants.structures.literals.LiteralInfo;
+import com.dujay.jvm.constants.structures.literals.LongLiteralInfo;
 import com.dujay.jvm.methods.MethodInfo;
 import com.dujay.jvm.methods.MethodPool;
 
@@ -46,10 +47,15 @@ public class BaseVisitor<T> implements Visitor<T> {
   }
 
   @Override
-  public T visit(StringInfo i) {
+  public T visit(LiteralInfo i) {
     return null;
   }
 
+  @Override
+  public T visit(LongLiteralInfo i) {
+    return null;
+  }
+  
   @Override
   public T visit(ConstantPool cp) {
     return null;

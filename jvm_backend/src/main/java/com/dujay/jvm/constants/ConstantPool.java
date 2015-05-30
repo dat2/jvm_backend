@@ -12,11 +12,11 @@ import java.util.stream.Collectors;
 
 import com.dujay.jvm.constants.structures.ClassInfo;
 import com.dujay.jvm.constants.structures.ConstantInfo;
-import com.dujay.jvm.constants.structures.LiteralInfo;
 import com.dujay.jvm.constants.structures.MemberRefInfo;
 import com.dujay.jvm.constants.structures.NameAndTypeInfo;
-import com.dujay.jvm.constants.structures.StringInfo;
 import com.dujay.jvm.constants.structures.Utf8Info;
+import com.dujay.jvm.constants.structures.literals.LiteralInfo;
+import com.dujay.jvm.constants.structures.literals.StringInfo;
 import com.dujay.jvm.constants.visitors.CodeGenVisitor;
 import com.dujay.jvm.constants.visitors.IndexVisitor;
 import com.dujay.jvm.typeclasses.Generatable;
@@ -29,7 +29,7 @@ public class ConstantPool implements Element, Generatable {
   private Set<MemberRefInfo> members;
   private Set<NameAndTypeInfo> namesAndTypes;
   private Set<Utf8Info> utf8s;
-  private Set<StringInfo> strings;
+  private Set<LiteralInfo> literals;
   
   private Map<String, NameAndTypeInfo> ntMap;
   private Map<String, ClassInfo> classMap;
@@ -52,7 +52,7 @@ public class ConstantPool implements Element, Generatable {
     members = new HashSet<MemberRefInfo>();
     namesAndTypes = new HashSet<NameAndTypeInfo>();
     utf8s = new HashSet<Utf8Info>();
-    strings = new HashSet<StringInfo>();
+    literals = new HashSet<LiteralInfo>();
     
     finalList = new ArrayList<ConstantInfo>();
     
@@ -64,24 +64,24 @@ public class ConstantPool implements Element, Generatable {
     this.literalMap = new HashMap<String, LiteralInfo>();
   }
 
-  public Collection<ClassInfo> getClasses() {
+  public Collection<ClassInfo> classes() {
     return classes;
   }
   
-  public Collection<MemberRefInfo> getMembers() {
+  public Collection<MemberRefInfo> members() {
     return members;
   }
 
-  public Collection<NameAndTypeInfo> getNamesAndTypes() {
+  public Collection<NameAndTypeInfo> namesAndTypes() {
     return namesAndTypes;
   }
 
-  public Collection<Utf8Info> getUtf8s() {
+  public Collection<Utf8Info> utf8s() {
     return utf8s;
   }
 
-  public Collection<StringInfo> getStrings() {
-    return strings;
+  public Collection<LiteralInfo> literals() {
+    return literals;
   }
 
   public ClassInfo getThisClass() {
@@ -120,7 +120,7 @@ public class ConstantPool implements Element, Generatable {
     return Optional.ofNullable(literalMap.get(lit));
   }
 
-  public void put(String literalName, StringInfo s) {
+  public void put(String literalName, LiteralInfo s) {
     literalMap.put(literalName, s);
     this.add(s);
   }
@@ -147,9 +147,12 @@ public class ConstantPool implements Element, Generatable {
     members.add(e);
   }
 
-  public void add(StringInfo e) {
-    strings.add(e);
-    this.add(e.getUtf8());
+  public void add(LiteralInfo e) {
+    literals.add(e);
+    if(e instanceof StringInfo) {
+      StringInfo si = (StringInfo) e;
+      utf8s.add(si.getUtf8());
+    }
   }
 
   public void add(NameAndTypeInfo e) {
@@ -181,12 +184,6 @@ public class ConstantPool implements Element, Generatable {
   public Optional<Utf8Info> getUtf8(String utf8) {
     return utf8s.stream()
         .filter(x -> x.getString().equals(utf8))
-        .findFirst();
-  }
-  
-  public Optional<StringInfo> getString(String utf8) {
-    return strings.stream()
-        .filter(x -> x.getUtf8().getString().equals(utf8))
         .findFirst();
   }
 

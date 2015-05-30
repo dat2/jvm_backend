@@ -70,40 +70,58 @@ public class Driver {
   private void generateMain() {   
     // main method constants
     cpb
-      .literal("hw", "Hello World")
-      .literal("hw2", "Hello World, Again!")
-      .literal("hw3", "Hello World, Again2!")
+      .literal("s", "Hello World")
+      .literal("i", 27)
+      .literal("f", 3.14f)
+      .literal("l", 12345678910L)
+      .literal("d", 4.0)
       
       .clazz("System", System.class)
       .clazz("PrintStream", PrintStream.class)
       
       .nameAndType("outNT", "out", Descriptor.fieldDescriptor(PrintStream.class))
-      .nameAndType("printlnNT", "println", Descriptor.methodDescriptor(Void.class, String.class))
+      .nameAndType("println.string.NT", "println", Descriptor.methodDescriptor(Void.class, String.class))
+      .nameAndType("println.integer.NT", "println", Descriptor.methodDescriptor(Void.class, int.class))
+      .nameAndType("println.float.NT", "println", Descriptor.methodDescriptor(Void.class, float.class))
+      .nameAndType("println.long.NT", "println", Descriptor.methodDescriptor(Void.class, long.class))
+      .nameAndType("println.double.NT", "println", Descriptor.methodDescriptor(Void.class, double.class))
       .nameAndType("mainNT", "main", Descriptor.methodDescriptor(Void.class, (new String[] {}).getClass()))
       
       .field("System.out", "System", "outNT")
       
-      .method("PrintStream.println", "PrintStream", "printlnNT")
+      .method("PrintStream.println.string", "PrintStream", "println.string.NT")
+      .method("PrintStream.println.integer", "PrintStream", "println.integer.NT")
+      .method("PrintStream.println.float", "PrintStream", "println.float.NT")
+      .method("PrintStream.println.long", "PrintStream", "println.long.NT")
+      .method("PrintStream.println.double", "PrintStream", "println.double.NT")
       .method("Hello.main", "this", "mainNT");
     
     // main method code
     // Hello.main(String[] args)
     CodeAttributeBuilder cab = mpb.beginMethod()
-      .signature("mainNT", 2, 1, AccessFlag.PUBLIC, AccessFlag.STATIC, AccessFlag.SYNTHETIC)
+      .signature("mainNT", 3, 1, AccessFlag.PUBLIC, AccessFlag.STATIC, AccessFlag.SYNTHETIC)
       
       .beginCode()
         // System.out.println("Hello World");
         .getstatic("System.out")
-        .ldc("hw")
-        .invokevirtual("PrintStream.println")
-        // System.out.println("Hello World, Again!");
+        .ldc("s")
+        .invokevirtual("PrintStream.println.string")
+        // System.out.println(integer);
         .getstatic("System.out")
-        .ldc("hw2")
-        .invokevirtual("PrintStream.println")
-        // System.out.println("Hello World, Again 2!");
+        .ldc("i")
+        .invokevirtual("PrintStream.println.integer")
+        // System.out.println(float);
         .getstatic("System.out")
-        .ldc("hw3")
-        .invokevirtual("PrintStream.println")
+        .ldc("f")
+        .invokevirtual("PrintStream.println.float")
+        // System.out.println(long);
+        .getstatic("System.out")
+        .ldc2_w("l")
+        .invokevirtual("PrintStream.println.long")
+        // System.out.println(double);
+        .getstatic("System.out")
+        .ldc2_w("d")
+        .invokevirtual("PrintStream.println.double")
         .vreturn();
     
     this.code.add(cab);

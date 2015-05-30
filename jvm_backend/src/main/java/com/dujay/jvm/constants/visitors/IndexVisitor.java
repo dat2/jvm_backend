@@ -12,8 +12,9 @@ import com.dujay.jvm.constants.structures.ClassInfo;
 import com.dujay.jvm.constants.structures.ConstantInfo;
 import com.dujay.jvm.constants.structures.MemberRefInfo;
 import com.dujay.jvm.constants.structures.NameAndTypeInfo;
-import com.dujay.jvm.constants.structures.StringInfo;
 import com.dujay.jvm.constants.structures.Utf8Info;
+import com.dujay.jvm.constants.structures.literals.LiteralInfo;
+import com.dujay.jvm.constants.structures.literals.LongLiteralInfo;
 import com.dujay.jvm.visitor.BaseVisitor;
 import com.dujay.jvm.visitor.Element;
 
@@ -54,8 +55,19 @@ public class IndexVisitor extends BaseVisitor<Stream<? extends ConstantInfo>> {
   }
 
   @Override
-  public Stream<? extends ConstantInfo> visit(StringInfo i) {
+  public Stream<? extends ConstantInfo> visit(LiteralInfo i) {
+    if(i instanceof LongLiteralInfo) {
+      return visit((LongLiteralInfo) i);
+    }
     return unit(i);
+  }
+
+  @Override
+  public Stream<? extends ConstantInfo> visit(LongLiteralInfo i) {
+    // long literals take two entries
+    i.setIndex(index++); index++;
+    logger.debug("Set index of: " + i.toString());
+    return Stream.of(i, null);
   }
 
   @Override
@@ -83,7 +95,7 @@ public class IndexVisitor extends BaseVisitor<Stream<? extends ConstantInfo>> {
       Stream.concat(
           firstConstants,
           // concat all constant info lists, and then call accept on them all
-          Stream.of(cp.getUtf8s(), cp.getStrings(), cp.getClasses(), cp.getNamesAndTypes(), cp.getMembers())
+          Stream.of(cp.utf8s(), cp.literals(), cp.classes(), cp.namesAndTypes(), cp.members())
           .flatMap(Collection::stream)
           .flatMap(x -> x.accept(this))
       );

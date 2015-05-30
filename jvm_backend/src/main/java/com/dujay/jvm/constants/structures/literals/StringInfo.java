@@ -1,7 +1,7 @@
-package com.dujay.jvm.constants.structures;
+package com.dujay.jvm.constants.structures.literals;
 
 import com.dujay.jvm.constants.enums.ConstantTag;
-import com.dujay.jvm.visitor.Visitor;
+import com.dujay.jvm.constants.structures.Utf8Info;
 
 public class StringInfo extends LiteralInfo {
   
@@ -25,8 +25,13 @@ public class StringInfo extends LiteralInfo {
   }
 
   @Override
-  public <T> T accept(Visitor<T> visitor) {
-    return visitor.visit(this);
+  public int bytes() {
+    return utf8.getIndex();
+  }
+
+  @Override
+  public int numBytes() {
+    return 2;
   }
 
   @Override
