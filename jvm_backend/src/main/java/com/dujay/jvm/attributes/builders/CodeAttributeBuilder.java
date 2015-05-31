@@ -1,5 +1,8 @@
 package com.dujay.jvm.attributes.builders;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -94,10 +97,18 @@ public class CodeAttributeBuilder {
     return this;
   }
   
-  public CodeAttributeBuilder getstatic(String memberName) {
+  public CodeAttributeBuilder getstatic(Field field) {
+    return getstatic(ConstantPool.uniqueFieldName(field));
+  }
+  
+  public CodeAttributeBuilder getstatic(String field) {
     logger.debug("getstatic");
     ca.u1(0xb2);
-    return writeMemberIndex(memberName);
+    return writeMemberIndex(field);
+  }
+  
+  public CodeAttributeBuilder invokevirtual(Method method) {
+    return invokevirtual(ConstantPool.uniqueMethodName(method));
   }
 
   public CodeAttributeBuilder invokevirtual(String memberName) {
@@ -106,10 +117,24 @@ public class CodeAttributeBuilder {
     return writeMemberIndex(memberName);
   }
   
+  public CodeAttributeBuilder invokespecial(Method method) {
+    return invokespecial(ConstantPool.uniqueMethodName(method));
+  }
+
+  public CodeAttributeBuilder invokespecial(Constructor<?> c) {
+    return invokespecial(ConstantPool.uniqueConstructorName(c));
+  }
+  
   public CodeAttributeBuilder invokespecial(String memberName) {
     logger.debug("invokespecial");
     ca.u1(0xb7);
     return writeMemberIndex(memberName);
+  }
+  
+  public MethodInfoBuilder build() {
+    return this
+        .patch()
+        .endCode();
   }
   
   public CodeAttributeBuilder patch() {

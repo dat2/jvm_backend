@@ -1,5 +1,7 @@
 package com.dujay.jvm.constants;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
@@ -28,6 +30,10 @@ public class Descriptor {
     return "L" + c.getTypeName().replace('.', '/') + ";";
   }
   
+  public static String fieldDescriptor(Field f) {
+    return fieldDescriptor(f.getType());
+  }
+  
   public static String methodDescriptor(Class<?> returnClass, Class<?>... parameters) {
     
     String parameterString = Arrays.asList(parameters).stream()
@@ -35,6 +41,10 @@ public class Descriptor {
         .collect(Collectors.joining());
     
     return "(" + parameterString + ")" + Descriptor.fieldDescriptor(returnClass);
+  }
+  
+  public static String methodDescriptor(Method m) {
+    return Descriptor.methodDescriptor(m.getReturnType(), m.getParameterTypes());
   }
   
 }

@@ -1,7 +1,9 @@
 package com.dujay.jvm;
 
-import java.io.IOException;
 import java.io.PrintStream;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,8 +13,8 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 import com.dujay.jvm.attributes.builders.CodeAttributeBuilder;
+import com.dujay.jvm.constants.ConstantPool;
 import com.dujay.jvm.constants.ConstantPoolBuilder;
-import com.dujay.jvm.constants.Descriptor;
 import com.dujay.jvm.constants.enums.AccessFlag;
 import com.dujay.jvm.file.ClassFile;
 import com.dujay.jvm.methods.builders.MethodPoolBuilder;
@@ -47,27 +49,36 @@ public class Driver {
       .source("Hello.jvm");
   }
   
-  private void generateInit() {
+  private void generateInit() throws Exception {
+    Constructor<Object> c = Object.class.getConstructor();
+    
     // generate constants
     cpb
-      .nameAndType("initNT", "<init>", Descriptor.methodDescriptor(Void.class))
-      .method("Hello.<init>", "this", "initNT")
-      .method("Object.<init>", "super", "initNT");
+      .constructor("super", c)
+      .constructor("this");
     
     // generate method
     CodeAttributeBuilder cab = mpb.beginMethod()
-      .signature("initNT", 1, 1, AccessFlag.PUBLIC, AccessFlag.SYNTHETIC)
+      .signature(ConstantPool.uniqueConstructorNTName(), 1, 1, AccessFlag.PUBLIC, AccessFlag.SYNTHETIC)
       
       .beginCode()
         .aload_0()
-        .invokespecial("Object.<init>")
+        .invokespecial(c)
         .vreturn();
     
     // add it for patching later
     this.code.add(cab);
   }
   
-  private void generateMain() {   
+  private void generateMain() throws Exception {
+    Method printlnS = PrintStream.class.getMethod("println", String.class);
+    Method printlnI = PrintStream.class.getMethod("println", int.class);
+    Method printlnF = PrintStream.class.getMethod("println", float.class);
+    Method printlnL = PrintStream.class.getMethod("println", long.class);
+    Method printlnD = PrintStream.class.getMethod("println", double.class);
+    
+    Field out = System.class.getField("out");
+    
     // main method constants
     cpb
       .literal("s", "Hello World")
@@ -76,52 +87,48 @@ public class Driver {
       .literal("l", 12345678910L)
       .literal("d", 4.0)
       
-      .clazz("System", System.class)
-      .clazz("PrintStream", PrintStream.class)
+      .clazz(System.class)
+      .clazz(PrintStream.class)
       
-      .nameAndType("outNT", "out", Descriptor.fieldDescriptor(PrintStream.class))
-      .nameAndType("println.string.NT", "println", Descriptor.methodDescriptor(Void.class, String.class))
-      .nameAndType("println.integer.NT", "println", Descriptor.methodDescriptor(Void.class, int.class))
-      .nameAndType("println.float.NT", "println", Descriptor.methodDescriptor(Void.class, float.class))
-      .nameAndType("println.long.NT", "println", Descriptor.methodDescriptor(Void.class, long.class))
-      .nameAndType("println.double.NT", "println", Descriptor.methodDescriptor(Void.class, double.class))
-      .nameAndType("mainNT", "main", Descriptor.methodDescriptor(Void.class, (new String[] {}).getClass()))
+      .field(out)
       
-      .field("System.out", "System", "outNT")
+      .method(printlnS)
+      .method(printlnI)
+      .method(printlnF)
+      .method(printlnL)
+      .method(printlnD)
       
-      .method("PrintStream.println.string", "PrintStream", "println.string.NT")
-      .method("PrintStream.println.integer", "PrintStream", "println.integer.NT")
-      .method("PrintStream.println.float", "PrintStream", "println.float.NT")
-      .method("PrintStream.println.long", "PrintStream", "println.long.NT")
-      .method("PrintStream.println.double", "PrintStream", "println.double.NT")
-      .method("Hello.main", "this", "mainNT");
+      // TODO make facade objects for both reflection and constructed classes
+      .nameAndType("main.NT", "main", Void.class, (new String[] {}).getClass())
+      .method("Hello.main", "this", "main.NT");
     
     // main method code
     // Hello.main(String[] args)
     CodeAttributeBuilder cab = mpb.beginMethod()
-      .signature("mainNT", 3, 1, AccessFlag.PUBLIC, AccessFlag.STATIC, AccessFlag.SYNTHETIC)
+      .signature("main.NT", 3, 1, AccessFlag.PUBLIC, AccessFlag.STATIC, AccessFlag.SYNTHETIC)
       
       .beginCode()
         // System.out.println("Hello World");
-        .getstatic("System.out")
+        .getstatic(out)
         .ldc("s")
-        .invokevirtual("PrintStream.println.string")
+        .invokevirtual(printlnS)
         // System.out.println(integer);
-        .getstatic("System.out")
+        .getstatic(out)
         .ldc("i")
-        .invokevirtual("PrintStream.println.integer")
+        .invokevirtual(printlnI)
         // System.out.println(float);
-        .getstatic("System.out")
+        .getstatic(out)
         .ldc("f")
-        .invokevirtual("PrintStream.println.float")
+        .invokevirtual(printlnF)
         // System.out.println(long);
-        .getstatic("System.out")
+        .getstatic(out)
         .ldc2_w("l")
-        .invokevirtual("PrintStream.println.long")
+        .invokevirtual(printlnL)
         // System.out.println(double);
-        .getstatic("System.out")
+        .getstatic(out)
         .ldc2_w("d")
-        .invokevirtual("PrintStream.println.double")
+        .invokevirtual(printlnD)
+        // return;
         .vreturn();
     
     this.code.add(cab);
@@ -138,17 +145,15 @@ public class Driver {
   private void buildMethodPool() {
     for(CodeAttributeBuilder b : this.code) {
       b
-        // patches the byte list with all the indices of the generated constants
-        .patch()
-        // lets you end the method
-        .endCode()
+        // patches addresses and adds the code attribute to the method info
+        .build()
         // adds it to the method pool finally
         .endMethod();
     }
     mpb.build();
   }
   
-  public void generate() throws IOException {
+  public void generate() throws Exception {
     this.generateConstants();
     this.generateInit();
     this.generateMain();

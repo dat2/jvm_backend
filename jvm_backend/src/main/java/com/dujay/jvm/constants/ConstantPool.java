@@ -1,5 +1,9 @@
 package com.dujay.jvm.constants;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Member;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -64,6 +68,28 @@ public class ConstantPool implements Element, Generatable {
     this.literalMap = new HashMap<String, LiteralInfo>();
   }
 
+  public static String uniqueMethodName(Method m) {
+    return m.getName() + "." + Descriptor.methodDescriptor(m) + ".method";
+  }
+  public static String uniqueConstructorName(Constructor<?> constructor) {
+    return uniqueClassName(constructor.getDeclaringClass()) + ".<init>";
+  }
+  public static String uniqueClassName(Class<?> c) {
+    return c.getSimpleName() + ".class";
+  }
+  public static String uniqueFieldName(Field f) {
+    return f.getName() + ".field";
+  }
+  public static String uniqueNTName(Member m) {
+    return m.getName() + "." + uniqueClassName(m.getDeclaringClass()) + ".NT";
+  }
+  public static String uniqueNTName(Constructor<?> constructor) {
+    return "<init>." + Descriptor.methodDescriptor(Void.class, constructor.getParameterTypes()) + ".NT";
+  }
+  public static String uniqueConstructorNTName(Class<?>... paramTypes) {
+    return "<init>." + Descriptor.methodDescriptor(Void.class, paramTypes) + ".NT";
+  }
+
   public Collection<ClassInfo> classes() {
     return classes;
   }
@@ -88,50 +114,54 @@ public class ConstantPool implements Element, Generatable {
     return thisClass;
   }
 
+  public ClassInfo getSuperClass() {
+    return superClass;
+  }
+
   public void setThisClass(ClassInfo thisClass) {
     classMap.put("this", thisClass);
     this.thisClass = thisClass;
-  }
-
-  public ClassInfo getSuperClass() {
-    return superClass;
   }
 
   public void setSuperClass(ClassInfo superClass) {
     classMap.put("super", thisClass);
     this.superClass = superClass;
   }
+
+  private <T> void put(Map<String, T> m, String key, T t) {
+    m.put(key, t);
+  }
+
+  public void put(String key, ClassInfo value) {
+    put(classMap, key, value);
+    this.add(value);
+  }
+  
+  public void put(String literalName, LiteralInfo s) {
+    put(literalMap, literalName, s);
+    this.add(s);
+  }
+  
+  public void put(String mName, MemberRefInfo member) {
+    put(memberMap, mName, member);
+    this.add(member);
+  }
   
   public void put(String key, NameAndTypeInfo value) {
-    ntMap.put(key, value);
+    put(ntMap, key, value);
     this.add(value);
   }
   
   public Optional<NameAndTypeInfo> getNameAndType(String nt) {
     return Optional.ofNullable(ntMap.get(nt));
   }
-
-  public void put(String key, ClassInfo value) {
-    classMap.put(key, value);
-    this.add(value);
-  }
   
   public Optional<LiteralInfo> getLiteral(String lit) {
     return Optional.ofNullable(literalMap.get(lit));
   }
-
-  public void put(String literalName, LiteralInfo s) {
-    literalMap.put(literalName, s);
-    this.add(s);
-  }
   
   public Optional<ClassInfo> getClassInfo(String ci) {
     return Optional.ofNullable(classMap.get(ci));
-  }
-
-  public void put(String mName, MemberRefInfo member) {
-    memberMap.put(mName, member);
-    this.add(member);
   }
   
   public Optional<MemberRefInfo> getMemberRefInfo(String mref) {
@@ -221,6 +251,5 @@ public class ConstantPool implements Element, Generatable {
   public Collection<ConstantInfo> getConstants() {
     return finalList;
   }
-
 
 }
