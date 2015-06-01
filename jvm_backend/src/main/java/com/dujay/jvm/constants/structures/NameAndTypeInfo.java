@@ -6,28 +6,28 @@ import com.dujay.jvm.visitor.Visitor;
 
 public class NameAndTypeInfo extends ConstantInfo implements Element {
   
-  private Utf8Info utf8;
+  private Utf8Info name;
   private Utf8Info type;
   
   public NameAndTypeInfo(Utf8Info name, Utf8Info type) {
-    this.utf8 = name;
+    this.name = name;
     this.type = type;
   }
   
   public Utf8Info getName() {
-    return this.utf8;
+    return this.name;
   }
   
   public Utf8Info getType() {
     return this.type;
   }
-  
-  public int getNameIndex() {
-    return this.utf8.getIndex();
+
+  public void setName(Utf8Info name) {
+    this.name =  name;
   }
   
-  public int getTypeIndex() {
-    return this.type.getIndex();
+  public void setType(Utf8Info type) {
+    this.type = type;
   }
 
   @Override
@@ -45,5 +45,6 @@ public class NameAndTypeInfo extends ConstantInfo implements Element {
     return String.format("NameAndTypeInfo [name=%s, type=%s, index=%s]", 
         getName().getString(), getType().getString(), getIndex());
   }
+
 
 }

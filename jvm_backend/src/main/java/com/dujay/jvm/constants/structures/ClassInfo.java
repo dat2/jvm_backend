@@ -6,23 +6,23 @@ import com.dujay.jvm.visitor.Visitor;
 
 public class ClassInfo extends ConstantInfo implements Element {
   
-  private Utf8Info utf8;
+  private Utf8Info name;
   
   public ClassInfo(Class<?> c) {
-    this.utf8 = new Utf8Info(c.getTypeName().replace('.', '/'));
+    this.name = new Utf8Info(c.getTypeName().replace('.', '/'));
   }
   
   // allows for synthetic classes
   public ClassInfo(String u) {
-    this.utf8 = new Utf8Info(u);
+    this.name = new Utf8Info(u);
   }
   
   public Utf8Info getName() {
-    return this.utf8;
+    return this.name;
   }
 
-  public int getNameIndex() {
-    return utf8.getIndex();
+  public void setName(Utf8Info name) {
+    this.name = name;
   }
   
   @Override

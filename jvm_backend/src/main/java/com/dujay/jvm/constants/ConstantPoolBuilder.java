@@ -41,11 +41,15 @@ public class ConstantPoolBuilder {
   }
 
   private ClassInfo makeClass(String ciName, String clazz) {
-    ClassInfo ci = new ClassInfo(clazz);
-    cpr.put(ciName, ci);
-    logger.debug("Adding class: " + ci.toString());
-
-    return ci;
+    Optional<ClassInfo> oci = cpr.getClassInfo(ciName);
+    if(!oci.isPresent()) {
+      ClassInfo ci = new ClassInfo(clazz);
+      cpr.put(ciName, ci);
+      logger.debug("Adding class: " + ci.toString());
+      return ci;
+    } else {
+      return oci.get();
+    }
   }
 
   public ConstantPoolBuilder clazz(Class<?> clazz) {
@@ -89,7 +93,8 @@ public class ConstantPoolBuilder {
 
   private ConstantPoolBuilder literal(String key, LiteralInfo value, String type) {
     cpr.put(key, value);
-    logger.debug("Adding " + type + " literal (" + key + "): " + value.toString());
+    logger.debug("Adding " + type + " literal (" + key + "): "
+        + value.toString());
     return this;
   }
 
@@ -113,7 +118,11 @@ public class ConstantPoolBuilder {
     return literal(key, new LongNumberInfo(value), "Double");
   }
 
-  public ConstantPoolBuilder utf8(String utf8) {
+  public ConstantPoolBuilder literal(String key, boolean b) {
+    return null;
+  }
+
+  private ConstantPoolBuilder utf8(String utf8) {
     Utf8Info uUtf = new Utf8Info(utf8);
     cpr.add(uUtf);
     logger.debug("Adding Utf8: " + uUtf.toString());
@@ -130,7 +139,8 @@ public class ConstantPoolBuilder {
     return this;
   }
 
-  public ConstantPoolBuilder nameAndType(String ntName, String name, String type) {
+  private ConstantPoolBuilder nameAndType(String ntName, String name,
+      String type) {
     NameAndTypeInfo nt = new NameAndTypeInfo(new Utf8Info(name),
         cpr.addDescriptor(name, type));
     cpr.put(ntName, nt);
@@ -140,18 +150,18 @@ public class ConstantPoolBuilder {
     return this;
   }
 
-  public ConstantPoolBuilder nameAndType(String ntName, String name,
+  private ConstantPoolBuilder nameAndType(String ntName, String name,
       Class<?> rType, Class<?>... paramTypes) {
     return nameAndType(ntName, name,
         Descriptor.methodDescriptor(rType, paramTypes));
   }
 
-  public ConstantPoolBuilder nameAndType(Field f) {
+  private ConstantPoolBuilder nameAndType(Field f) {
     return nameAndType(ConstantPool.uniqueNTName(f), f.getName(),
         Descriptor.fieldDescriptor(f));
   }
 
-  public ConstantPoolBuilder nameAndType(Method m) {
+  private ConstantPoolBuilder nameAndType(Method m) {
     return nameAndType(ConstantPool.uniqueNTName(m), m.getName(),
         Descriptor.methodDescriptor(m.getReturnType(), m.getParameterTypes()));
   }
@@ -160,7 +170,7 @@ public class ConstantPoolBuilder {
       String mName, String ciName, String ntName) {
     Optional<ClassInfo> ci = cpr.getClassInfo(ciName);
     Optional<NameAndTypeInfo> nti = cpr.getNameAndType(ntName);
-    
+
     MemberRefInfo member = new MemberRefInfo(type, ci.get(), nti.get());
     logger.debug("Adding " + type + " (" + mName + "): " + member.toString());
 
@@ -169,22 +179,32 @@ public class ConstantPoolBuilder {
     return this;
   }
 
-  public ConstantPoolBuilder method(String mName, String ciName, String ntName) {
+  private ConstantPoolBuilder method(String mName, String ciName, String ntName) {
     return makeMemberRef(MemberRefInfo.MemberRefType.MethodRef, mName, ciName,
         ntName);
   }
 
   public ConstantPoolBuilder method(Method m) {
-    String mName = ConstantPool.uniqueMethodName(m);
-    String ciName = ConstantPool.uniqueClassName(m.getDeclaringClass());
-    String ntName = ConstantPool.uniqueNTName(m);
-
     this.nameAndType(m);
-    return makeMemberRef(MemberRefInfo.MemberRefType.MethodRef, mName, ciName,
-        ntName);
+    return method(ConstantPool.uniqueMethodName(m),
+        ConstantPool.uniqueClassName(m.getDeclaringClass()),
+        ConstantPool.uniqueNTName(m));
+  }
+  
+  public ConstantPoolBuilder method(String ciName, String methodName, Class<?> rType, Class<?>... pTypes) {
+    String mName = ConstantPool.uniqueMethodName(methodName, rType, pTypes);
+    String ntName = ConstantPool.uniqueNTName(ciName, methodName);
+    this.nameAndType(ntName, methodName, rType, pTypes);
+    
+    return method(mName,ciName,ntName);
   }
 
-  public ConstantPoolBuilder constructor(String ciName, Constructor<?> constructor) {
+  public ConstantPoolBuilder method(Class<?> c, String methodName, Class<?> rType, Class<?>... pTypes) {
+    return method(ConstantPool.uniqueClassName(c),methodName,rType,pTypes);
+  }
+
+  public ConstantPoolBuilder constructor(String ciName,
+      Constructor<?> constructor) {
     String mName = ConstantPool.uniqueConstructorName(constructor);
     String ntName = ConstantPool.uniqueNTName(constructor);
 
@@ -200,8 +220,9 @@ public class ConstantPoolBuilder {
   }
 
   public ConstantPoolBuilder constructor(Constructor<?> constructor) {
-    return this.constructor(ConstantPool.uniqueClassName(constructor
-        .getDeclaringClass()), constructor);
+    return this.constructor(
+        ConstantPool.uniqueClassName(constructor.getDeclaringClass()),
+        constructor);
   }
 
   public ConstantPoolBuilder constructor(String ciName, Class<?>... paramTypes) {

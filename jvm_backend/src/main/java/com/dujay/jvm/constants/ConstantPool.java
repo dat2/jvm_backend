@@ -68,6 +68,9 @@ public class ConstantPool implements Element, Generatable {
     this.literalMap = new HashMap<String, LiteralInfo>();
   }
 
+  public static String uniqueMethodName(String mName, Class<?> rType, Class<?>... pTypes) {
+    return mName + "." + Descriptor.methodDescriptor(rType, pTypes) + ".method";
+  }
   public static String uniqueMethodName(Method m) {
     return m.getName() + "." + Descriptor.methodDescriptor(m) + ".method";
   }
@@ -79,6 +82,9 @@ public class ConstantPool implements Element, Generatable {
   }
   public static String uniqueFieldName(Field f) {
     return f.getName() + ".field";
+  }
+  public static String uniqueNTName(String ciName, String methodName) {
+    return methodName + "." + ciName + ".NT";
   }
   public static String uniqueNTName(Member m) {
     return m.getName() + "." + uniqueClassName(m.getDeclaringClass()) + ".NT";
@@ -170,7 +176,13 @@ public class ConstantPool implements Element, Generatable {
 
   public void add(ClassInfo e) {
     classes.add(e);
-    utf8s.add(e.getName());
+
+    Optional<Utf8Info> name = this.getUtf8(e.getName().getString());
+    if(!name.isPresent()) {
+      utf8s.add(e.getName());
+    } else {
+      e.setName(name.get());
+    }
   }
 
   public void add(MemberRefInfo e) {
@@ -187,8 +199,20 @@ public class ConstantPool implements Element, Generatable {
 
   public void add(NameAndTypeInfo e) {
     namesAndTypes.add(e);
-    utf8s.add(e.getName());
-    utf8s.add(e.getType());
+    
+    Optional<Utf8Info> name = this.getUtf8(e.getName().getString());
+    if(!name.isPresent()) {
+      utf8s.add(e.getName());
+    } else {
+      e.setName(name.get());
+    }
+    
+    Optional<Utf8Info> type = this.getUtf8(e.getType().getString());
+    if(!type.isPresent()) {
+      utf8s.add(e.getType());
+    } else{
+      e.setType(type.get());
+    }
   }
 
   public void add(Utf8Info e) {

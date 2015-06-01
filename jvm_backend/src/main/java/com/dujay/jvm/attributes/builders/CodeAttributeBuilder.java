@@ -13,6 +13,7 @@ import ch.qos.logback.classic.Logger;
 
 import com.dujay.jvm.attributes.CodeAttribute;
 import com.dujay.jvm.constants.ConstantPool;
+import com.dujay.jvm.constants.structures.ClassInfo;
 import com.dujay.jvm.constants.structures.ConstantInfo;
 import com.dujay.jvm.constants.structures.MemberRefInfo;
 import com.dujay.jvm.constants.structures.literals.LiteralInfo;
@@ -58,6 +59,54 @@ public class CodeAttributeBuilder {
     this.constantPatchAddresses.add(new PatchAddress(c, idx, func));
   }
   
+  public CodeAttributeBuilder aconst_null() {
+    logger.debug("aconst_null");
+    ca.u1(0x1);
+    return this;
+  }
+  public CodeAttributeBuilder iconst_m1() {
+    logger.debug("iconst_m1");
+    ca.u1(0x2);
+    return this;
+  }
+  public CodeAttributeBuilder iconst_0() {
+    logger.debug("iconst_0");
+    ca.u1(0x3);
+    return this;
+  }
+  public CodeAttributeBuilder iconst_1() {
+    logger.debug("iconst_1");
+    ca.u1(0x4);
+    return this;
+  }
+  public CodeAttributeBuilder iconst_2() {
+    logger.debug("iconst_2");
+    ca.u1(0x5);
+    return this;
+  }
+  public CodeAttributeBuilder iconst_3() {
+    logger.debug("iconst_3");
+    ca.u1(0x6);
+    return this;
+  }
+  public CodeAttributeBuilder iconst_4() {
+    logger.debug("iconst_4");
+    ca.u1(0x7);
+    return this;
+  }
+  public CodeAttributeBuilder iconst_5() {
+    logger.debug("iconst_5");
+    ca.u1(0x8);
+    return this;
+  }
+  
+  public CodeAttributeBuilder bipush(int b) {
+    logger.debug("bipush");
+    ca.u1(0x10);
+    ca.u1(b);
+    return this;
+  }
+  
   public CodeAttributeBuilder ldc(String lit) {
     logger.debug("ldc");
     LiteralInfo info = cpr.getLiteral(lit).get();
@@ -79,6 +128,12 @@ public class CodeAttributeBuilder {
   public CodeAttributeBuilder aload_0() {
     logger.debug("aload_0");
     ca.u1(0x2a);
+    return this;
+  }
+
+  public CodeAttributeBuilder dup() {
+    logger.debug("dup");
+    ca.u1(0x59);
     return this;
   }
   
@@ -117,6 +172,12 @@ public class CodeAttributeBuilder {
     return writeMemberIndex(memberName);
   }
   
+  public CodeAttributeBuilder invokespecial(String memberName) {
+    logger.debug("invokespecial");
+    ca.u1(0xb7);
+    return writeMemberIndex(memberName);
+  }
+  
   public CodeAttributeBuilder invokespecial(Method method) {
     return invokespecial(ConstantPool.uniqueMethodName(method));
   }
@@ -124,11 +185,19 @@ public class CodeAttributeBuilder {
   public CodeAttributeBuilder invokespecial(Constructor<?> c) {
     return invokespecial(ConstantPool.uniqueConstructorName(c));
   }
+
+  public CodeAttributeBuilder nnew(String ciName) {
+    logger.debug("new");
+    ClassInfo info = cpr.getClassInfo(ciName).get();
+    ca.u1(0xbb);
+    ca.u2(0);
+    this.addPatchAddress(info, ca.currentIndex() - 1, ca::u2);
+    
+    return this;
+  }
   
-  public CodeAttributeBuilder invokespecial(String memberName) {
-    logger.debug("invokespecial");
-    ca.u1(0xb7);
-    return writeMemberIndex(memberName);
+  public CodeAttributeBuilder nnew(Class<?> c) {
+    return nnew(ConstantPool.uniqueClassName(c));
   }
   
   public MethodInfoBuilder build() {

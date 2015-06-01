@@ -28,7 +28,7 @@ public class CodeGenVisitor extends ByteArrayVisitor {
 
     // write the class structure
     u1(c.tag());
-    u2(c.getNameIndex());
+    u2(c.getName().getIndex());
 
     return super.visit(c);
   }
@@ -39,8 +39,8 @@ public class CodeGenVisitor extends ByteArrayVisitor {
 
     // write the name and type
     u1(nt.tag());
-    u2(nt.getNameIndex());
-    u2(nt.getTypeIndex());
+    u2(nt.getName().getIndex());
+    u2(nt.getType().getIndex());
 
     return super.visit(nt);
   }
@@ -51,8 +51,8 @@ public class CodeGenVisitor extends ByteArrayVisitor {
 
     // write the member ref structure
     u1(m.tag());
-    u2(m.getOwnerClassIndex());
-    u2(m.getNameAndTypeIndex());
+    u2(m.getOwnerClass().getIndex());
+    u2(m.getNameAndType().getIndex());
 
     return super.visit(m);
   }

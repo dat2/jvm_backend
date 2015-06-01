@@ -54,7 +54,9 @@ public class Driver {
     
     // generate constants
     cpb
-      .constructor("super", c)
+      .clazz(Object.class)
+      
+      .constructor(c)
       .constructor("this");
     
     // generate method
@@ -72,10 +74,13 @@ public class Driver {
   
   private void generateMain() throws Exception {
     Method printlnS = PrintStream.class.getMethod("println", String.class);
+    Method printlnB = PrintStream.class.getMethod("println", boolean.class);
+    Method printlnC = PrintStream.class.getMethod("println", char.class);
     Method printlnI = PrintStream.class.getMethod("println", int.class);
     Method printlnF = PrintStream.class.getMethod("println", float.class);
     Method printlnL = PrintStream.class.getMethod("println", long.class);
     Method printlnD = PrintStream.class.getMethod("println", double.class);
+    Method printlnO = PrintStream.class.getMethod("println", Object.class);
     
     Field out = System.class.getField("out");
     
@@ -86,26 +91,28 @@ public class Driver {
       .literal("f", 3.14f)
       .literal("l", 12345678910L)
       .literal("d", 4.0)
-      
+
       .clazz(System.class)
       .clazz(PrintStream.class)
       
       .field(out)
       
       .method(printlnS)
+      .method(printlnB)
+      .method(printlnC)
       .method(printlnI)
       .method(printlnF)
       .method(printlnL)
       .method(printlnD)
+      .method(printlnO)
       
       // TODO make facade objects for both reflection and constructed classes
-      .nameAndType("main.NT", "main", Void.class, (new String[] {}).getClass())
-      .method("Hello.main", "this", "main.NT");
+      .method("this", "main", Void.class, (new String[] {}).getClass());
     
     // main method code
     // Hello.main(String[] args)
     CodeAttributeBuilder cab = mpb.beginMethod()
-      .signature("main.NT", 3, 1, AccessFlag.PUBLIC, AccessFlag.STATIC, AccessFlag.SYNTHETIC)
+      .signature(ConstantPool.uniqueNTName("this", "main"), 3, 1, AccessFlag.PUBLIC, AccessFlag.STATIC, AccessFlag.SYNTHETIC)
       
       .beginCode()
         // System.out.println("Hello World");
@@ -128,6 +135,24 @@ public class Driver {
         .getstatic(out)
         .ldc2_w("d")
         .invokevirtual(printlnD)
+        // System.out.println(true);
+        .getstatic(out)
+        .iconst_1()
+        .invokevirtual(printlnB)
+        // System.out.println(false);
+        .getstatic(out)
+        .iconst_0()
+        .invokevirtual(printlnB)
+        // System.out.println('c');
+        .getstatic(out)
+        .bipush('c')
+        .invokevirtual(printlnC)
+        // System.out.println(new Object());
+        .getstatic(out)
+        .nnew(Object.class)
+        .dup()
+        .invokespecial(Object.class.getConstructor())
+        .invokevirtual(printlnO)
         // return;
         .vreturn();
     
